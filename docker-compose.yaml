@@ -8,5 +8,9 @@ services:
     network_mode: "host"
     environment:
       - DOCKER_STEPCA_INIT_NAME="Acme Corp"
-      - DOCKER_STEPCA_INIT_DNS_NAMES="step-ca.docker"
+      - DOCKER_STEPCA_INIT_DNS_NAMES="localhost,step-ca.docker"
       - DOCKER_STEPCA_INIT_PASSWORD=mysecretpassword
+    volumes:
+      - step-ca:/home/step
+volumes:
+  step-ca:
