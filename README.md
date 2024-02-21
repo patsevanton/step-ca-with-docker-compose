@@ -9,3 +9,6 @@ clean all volume:
 ```shell
 docker volume prune -a
 ```
+
+
+https://habr.com/ru/articles/671730/
