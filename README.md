@@ -7,6 +7,7 @@ step ca bootstrap --ca-url https://localhost:9000 --fingerprint $CA_FINGERPRINT
 
 clean all volume:
 ```shell
+docker system prune
 docker volume prune -a
 ```
 
