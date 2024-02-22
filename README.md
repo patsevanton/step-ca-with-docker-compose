@@ -1,12 +1,13 @@
 ```shell
 sudo eget smallstep/cli --to /usr/local/bin
-docker compose up
-Find Root fingerprint (CA_FINGERPRINT)
-step ca bootstrap --ca-url https://localhost:9000 --fingerprint $CA_FINGERPRINT
+docker compose up -d
+docker compose logs | grep fingerprint
+step ca bootstrap --ca-url https://localhost:9000 --fingerprint fingerprint
 ```
 
 clean all volume:
 ```shell
+docker compose down
 docker system prune
 docker volume prune -a
 ```
@@ -24,7 +25,7 @@ CA Smallstep может одновременно сформировать при
 step certificate create --csr --no-password --insecure --kty=RSA --size=2048 localhost server.csr server.key
 ```
 
-Подписываем сертификат на нашем CA Smallstep:
+Подписываем сертификат на нашем CA Smallstep. Вводим пароль указанный в DOCKER_STEPCA_INIT_PASSWORD
 ```
 step ca sign server.csr server.crt
 ```
