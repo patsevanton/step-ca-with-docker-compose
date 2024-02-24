@@ -8,7 +8,7 @@ services:
     network_mode: "host"
     environment:
       - DOCKER_STEPCA_INIT_NAME="Acme Corp"
-      - DOCKER_STEPCA_INIT_DNS_NAMES=localhost
+      - DOCKER_STEPCA_INIT_DNS_NAMES=localhost,$(hostname -f)
       - DOCKER_STEPCA_INIT_PASSWORD=mysecretpassword
     volumes:
       - step-ca:/home/step

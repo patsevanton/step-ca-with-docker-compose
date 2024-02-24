@@ -5,7 +5,7 @@ docker compose logs | grep fingerprint
 step ca bootstrap --ca-url https://localhost:9000 --fingerprint fingerprint
 ```
 
-clean all volume:
+clean all volumes:
 ```shell
 docker compose down
 docker system prune
