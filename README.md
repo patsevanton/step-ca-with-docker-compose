@@ -41,7 +41,7 @@ CA Smallstep может одновременно сформировать при
 step certificate create --csr --no-password --insecure --kty=RSA --size=2048 localhost server.csr server.key
 ```
 
-Подписываем сертификат на нашем CA Smallstep. Вводим пароль указанный в DOCKER_STEPCA_INIT_PASSWORD
+Подписываем сертификат на нашем CA Smallstep. Вводим пароль указанный в DOCKER_STEPCA_INIT_PASSWORD_FILE
 ```shell
 step ca sign server.csr server.crt
 ```
