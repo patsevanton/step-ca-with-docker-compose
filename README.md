@@ -26,9 +26,20 @@ https://habr.com/ru/articles/671730/
 ```shell
 step ca root root_ca.crt
 ```
+
 Смотрим корневой сертификат:
 ```shell
 step certificate inspect root_ca.crt
+```
+
+Получаем ID docker контейнера
+```shell
+docker_id=$(docker ps -a | grep "smallstep/step-ca" | awk '{print $1}')
+```
+
+Копируем root ключ
+```shell
+docker cp $docker_id:/home/step/secrets/root_ca_key .
 ```
 
 Создаем ключ подписи и запрос на сертификат. Вводим пароль указанный в DOCKER_STEPCA_INIT_PASSWORD_FILE
