@@ -9,8 +9,9 @@ services:
     environment:
       - DOCKER_STEPCA_INIT_NAME="Root CA My Corp"
       - DOCKER_STEPCA_INIT_DNS_NAMES=localhost,$(hostname -f)
-      - DOCKER_STEPCA_INIT_PASSWORD=mysecretpassword
+      - DOCKER_STEPCA_INIT_PASSWORD_FILE=/password.txt
     volumes:
       - step-ca:/home/step
+      - ${PWD}/password.txt:/password.txt
 volumes:
   step-ca:
