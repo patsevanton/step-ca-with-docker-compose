@@ -38,7 +38,7 @@ step certificate create "Intermediate CA Name" intermediate.csr intermediate_ca_
 
 Подписываем запрос на промежуточный сертификат.
 ```shell
-step certificate sign --profile intermediate-ca intermediate.csr ${HOME}/.step/certs/root_ca.crt ${HOME}/.step/certs/root.key
+step certificate sign --profile intermediate-ca intermediate.csr root_ca.crt root.key
 ```
 
 Генерация ключей и сертификатов
