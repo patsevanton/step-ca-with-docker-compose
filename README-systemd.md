@@ -1,4 +1,5 @@
 Step-ca инструмент управления центром сертификации (CA)
+
 Возможности Step-ca:
 * Выпуск X.509 HTTPS-сертификатов для работы в браузерах.
 * Выпуск X.509 клиентских сертификатов для включения взаимной аутентификации TLS (mTLS).
@@ -213,12 +214,12 @@ export STEPPATH=/etc/step-ca
 sudo step certificate fingerprint $(step path)/certs/root_ca.crt
 ```
 
-Подпишем csr промежуточным сертификатом CA:
+Подпишем csr FreeIPA корневым сертификатом CA, так как FreeIPA требует поля CA в сертификате:
 ```shell
-step certificate sign --profile csr \
-  --ca /etc/step-ca/certs/intermediate_ca.crt \
-  --ca-key /etc/step-ca/secrets/intermediate_ca_key \
-  test.csr test.crt
+step certificate sign --profile intermediate-ca \
+  --ca /etc/step-ca/certs/root_ca.crt \
+  --ca-key /etc/step-ca/secrets/root_ca_key \
+  ipa.csr ipa.crt
 ```
 
 Вывод
