@@ -20,8 +20,6 @@ yes | docker system prune
 yes | docker volume prune -a
 ```
 
-https://habr.com/ru/articles/671730/
-
 Получаем с CA Smallstep его корневой сертификат:
 ```shell
 step ca root root_ca.crt
@@ -42,19 +40,9 @@ docker_id=$(docker ps -a | grep "smallstep/step-ca" | awk '{print $1}')
 docker cp $docker_id:/home/step/secrets/root_ca_key .
 ```
 
-Создаем ключ подписи и запрос на сертификат. Вводим пароль указанный в DOCKER_STEPCA_INIT_PASSWORD_FILE
-```shell
-step certificate create "Intermediate CA Name" intermediate.csr intermediate_ca_key --csr
-```
-
-Подписываем запрос на промежуточный сертификат.
-```shell
-step certificate sign --profile intermediate-ca intermediate.csr root_ca.crt root.key
-```
-
 Генерация ключей и сертификатов
 
-Генерируем ключ и сертификат для сервера и установки TLS соединения, потом для клиента и установки mTLS.
+Генерируем ключ и сертификат для сервера и установки TLS соединения
 
 CA Smallstep может одновременно сформировать приватный ключ сервера 2048-бит RSA (server.key) и запрос на сертификат (server.csr). В запросе явно указываем, что пароль должен быть пустой (no-password), localhost - это DNS адрес сервера, для которого генерируется запрос:
 
