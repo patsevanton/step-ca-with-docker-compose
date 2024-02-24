@@ -3,17 +3,18 @@ Install binary
 sudo eget smallstep/cli --to /usr/local/bin
 ```
 
+Init Root CA
 ```shell
 docker compose up -d
-docker compose logs | grep fingerprint
-# step ca bootstrap --ca-url https://localhost:9000 --fingerprint fingerprint
+fingerprint=$(docker compose logs | grep fingerprint | awk '{print $6}')
+step ca bootstrap --ca-url https://localhost:9000 --fingerprint $fingerprint
 ```
 
 clean all volumes:
 ```shell
 docker compose down
-docker system prune
-docker volume prune -a
+yes | docker system prune
+yes | docker volume prune -a
 ```
 
 https://habr.com/ru/articles/671730/
