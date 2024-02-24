@@ -4,3 +4,4 @@
 /server.key
 /intermediate.csr
 /intermediate_ca_key
+/root_ca_key
