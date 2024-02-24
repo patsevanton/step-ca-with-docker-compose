@@ -31,6 +31,16 @@ step ca root root_ca.crt
 step certificate inspect root_ca.crt
 ```
 
+Создаем ключ подписи и запрос на сертификат. Вводим пароль указанный в DOCKER_STEPCA_INIT_PASSWORD_FILE
+```shell
+step certificate create "Intermediate CA Name" intermediate.csr intermediate_ca_key --csr
+```
+
+Подписываем запрос на промежуточный сертификат.
+```shell
+step certificate sign --profile intermediate-ca intermediate.csr ${HOME}/.step/certs/root_ca.crt ${HOME}/.step/certs/root.key
+```
+
 Генерация ключей и сертификатов
 
 Генерируем ключ и сертификат для сервера и установки TLS соединения, потом для клиента и установки mTLS.
