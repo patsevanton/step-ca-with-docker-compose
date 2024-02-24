@@ -35,7 +35,7 @@ step certificate inspect root_ca.crt
 
 Генерируем ключ и сертификат для сервера и установки TLS соединения, потом для клиента и установки mTLS.
 
-CA Smallstep может одновременно сформировать приватный ключ сервера 2048-бит RSA (server.key) и запрос на сертификат (server.csr). В запросе явно указываем, что пароль должен быть пустой (no-password), localhost - это IP адрес сервера, для которого генерируется запрос:
+CA Smallstep может одновременно сформировать приватный ключ сервера 2048-бит RSA (server.key) и запрос на сертификат (server.csr). В запросе явно указываем, что пароль должен быть пустой (no-password), localhost - это DNS адрес сервера, для которого генерируется запрос:
 
 ```shell
 step certificate create --csr --no-password --insecure --kty=RSA --size=2048 localhost server.csr server.key
