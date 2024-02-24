@@ -1,8 +1,12 @@
+Install binary
 ```shell
 sudo eget smallstep/cli --to /usr/local/bin
+```
+
+```shell
 docker compose up -d
 docker compose logs | grep fingerprint
-step ca bootstrap --ca-url https://localhost:9000 --fingerprint fingerprint
+# step ca bootstrap --ca-url https://localhost:9000 --fingerprint fingerprint
 ```
 
 clean all volumes:
