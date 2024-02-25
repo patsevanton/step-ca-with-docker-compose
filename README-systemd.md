@@ -214,7 +214,7 @@ export STEPPATH=/etc/step-ca
 sudo step certificate fingerprint $(step path)/certs/root_ca.crt
 ```
 
-Подпишем csr FreeIPA корневым сертификатом CA, так как FreeIPA требует поля `CA:True` в своем сертификате:
+Подпишем зашифрованный запрос на выпуск сертификата (csr) FreeIPA корневым сертификатом CA, так как в FreeIPA csr указано поле `CA:True` и только корневой сертификат может его подписать:
 ```shell
 step certificate sign --profile intermediate-ca \
   --ca /etc/step-ca/certs/root_ca.crt \
