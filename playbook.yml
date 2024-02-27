@@ -1,0 +1,125 @@
+- hosts: ipaserver
+  become: true
+  vars:
+    - key_size: 4096
+    - key_type: RSA # Others include DSA, ECC, Ed25519, Ed448, X25519, X448
+    - country_name: RU
+    - email_address: admin@apatsev.org.ru
+    - organization_name: APATSEV
+
+  pre_tasks:
+    - name: Update apt cache.
+      apt: update_cache=true cache_valid_time=600
+      when: ansible_os_family == 'Debian'
+
+    - name: Create directory /etc/docker-compose
+      ansible.builtin.file:
+        path: /etc/docker-compose
+        state: directory
+        owner: "{{ ssh_user }}"
+        group: "{{ ssh_user }}"
+
+    - name: Create directory /etc/docker-compose/freeipa-certificate
+      ansible.builtin.file:
+        path: /etc/docker-compose/freeipa-certificate
+        state: directory
+        owner: "{{ ssh_user }}"
+        group: "{{ ssh_user }}"
+
+    - name: Create directory /etc/docker-compose/ca
+      ansible.builtin.file:
+        path: /etc/docker-compose/ca
+        state: directory
+        owner: "{{ ssh_user }}"
+        group: "{{ ssh_user }}"
+
+  roles:
+    - role: geerlingguy.docker
+  post_tasks:
+
+    - name: add user ubuntu to docker group
+      ansible.builtin.user:
+        name: "{{ ssh_user }}"
+        groups: docker
+        append: yes
+
+    - name: reset ssh connection to allow user changes to affect ansible user
+      ansible.builtin.meta:
+        reset_connection
+
+    - name: Create docker-compose.yaml
+      template:
+        src: "docker-compose.yaml.j2"
+        dest: /etc/docker-compose/docker-compose.yaml
+        owner: "{{ ssh_user }}"
+        group: "{{ ssh_user }}"
+        mode: '0644'
+      register: docker_compose
+
+    - name: Download CA cert file from local-ip.co
+      get_url:
+        url: "http://local-ip.co/cert/server.pem"
+        dest: "/etc/docker-compose/ca/ca.crt"
+
+    - name: Download intermediate cert file from local-ip.co
+      get_url:
+        url: "http://local-ip.co/cert/chain.pem"
+        dest: "/etc/docker-compose/ca/chain.crt"
+
+    - name: Download CA key file from local-ip.co
+      get_url:
+        url: "http://local-ip.co/cert/server.key"
+        dest: "/etc/docker-compose/ca/ca.key"
+
+    - name: Download lets-encrypt-r3.pem file from local-ip.co
+      get_url:
+        url: "https://letsencrypt.org/certs/lets-encrypt-r3.pem"
+        dest: "/etc/docker-compose/ca/lets-encrypt-r3.pem"
+
+    - name: Create and start services
+      community.docker.docker_compose_v2:
+        project_src: /etc/docker-compose
+      register: docker_compose_output
+      ignore_errors: true
+
+    - name: Pause for 5 minutes to start services docker-compose
+      ansible.builtin.pause:
+        minutes: 5
+
+    - name: Generate an OpenSSL certificate signed with your own CA certificate
+      community.crypto.x509_certificate:
+        path: /etc/docker-compose/freeipa-certificate/freeipa.crt
+        csr_path: /etc/docker-compose/freeipa-data/ipa.csr
+        ownca_path: /etc/docker-compose/ca/ca.crt
+        ownca_privatekey_path: /etc/docker-compose/ca/ca.key
+        provider: ownca
+
+    - name: Remove external-ca from /etc/hosts
+      lineinfile:
+        path: /etc/docker-compose/docker-compose.yaml
+        state: absent
+        regexp: 'external-ca'
+
+    - name: 'Add external-cert-file=/freeipa-certificate/freeipa.crt to docker-compose.yaml'
+      lineinfile:
+        path: '/etc/docker-compose/docker-compose.yaml'
+        line: '      - --external-cert-file=/freeipa-certificate/freeipa.crt'
+        insertbefore: "unattended"
+
+    - name: 'Add external-cert-file=/ca/chain.crt to docker-compose.yaml'
+      lineinfile:
+        path: '/etc/docker-compose/docker-compose.yaml'
+        line: '      - --external-cert-file=/ca/chain.crt'
+        insertbefore: "unattended"
+
+    - name: 'Add external-cert-file=/ca/ca.crt to docker-compose.yaml'
+      lineinfile:
+        path: '/etc/docker-compose/docker-compose.yaml'
+        line: '      - --external-cert-file=/ca/ca.crt'
+        insertbefore: "unattended"
+
+    - name: 'Add external-cert-file=/ca/lets-encrypt-r3.pem to docker-compose.yaml'
+      lineinfile:
+        path: '/etc/docker-compose/docker-compose.yaml'
+        line: '      - --external-cert-file=/ca/lets-encrypt-r3.pem'
+        insertbefore: "unattended"
