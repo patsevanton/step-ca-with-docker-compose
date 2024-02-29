@@ -11,3 +11,4 @@ terraform.*
 private.auto.tfvars
 inventory.yml
 .terraform.tfstate.lock.info
+.vscode/settings.json
