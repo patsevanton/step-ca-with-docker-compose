@@ -1,0 +1,8 @@
+- name: Install Smallstap CA
+  hosts: smallstep
+
+  pre_tasks:
+    - name: Install smallstep deb
+      become: true
+      ansible.builtin.apt:
+        deb: https://github.com/smallstep/certificates/releases/download/v0.25.2/step-ca_0.25.2_amd64.deb
