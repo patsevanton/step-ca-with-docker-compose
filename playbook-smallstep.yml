@@ -7,3 +7,8 @@
       become: true
       ansible.builtin.apt:
         deb: https://github.com/smallstep/certificates/releases/download/v{{ smallstep_version }}/step-ca_{{ smallstep_version }}_amd64.deb
+
+    - name: Install smallstep cli deb
+      become: true
+      ansible.builtin.apt:
+        deb: wget https://github.com/smallstep/cli/releases/download/v{{ smallstep_version }}/step-cli_{{ smallstep_version }}_amd64.deb
