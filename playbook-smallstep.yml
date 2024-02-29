@@ -19,10 +19,22 @@
         deb: "/tmp/step-cli_{{ smallstep_version }}_amd64.deb"
         state: present
 
-    - name: Даем возможность запустить сервер step-ca от обычного пользователя
+    # - name: Даем возможность запустить сервер step-ca от обычного пользователя
+    #   become: true
+    #   ansible.builtin.shell: |
+    #     setcap CAP_NET_BIND_SERVICE=+eip $(which step-ca)
+
+    - name: Получение пути к step-ca
+      ansible.builtin.command: "which step-ca"
+      register: step_ca_path
+      changed_when: "'changed' in step_ca_path.stdout"
+
+    - name: Установка CAP_NET_BIND_SERVICE
       become: true
-      ansible.builtin.shell: |
-        setcap CAP_NET_BIND_SERVICE=+eip $(which step-ca)
+      community.general.capabilities:
+        path: "{{ step_ca_path.stdout }}"
+        capability: cap_net_bind_service+ep
+        state: present
 
     - name: Создание системного пользователя step
       become: true
