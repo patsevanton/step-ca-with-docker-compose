@@ -10,7 +10,9 @@
 
   pre_tasks:
     - name: Update apt cache.
-      ansible.builtin.apt: update_cache=true cache_valid_time=600
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 600
       when: ansible_os_family == 'Debian'
 
     - name: Create directory /etc/docker-compose
@@ -38,18 +40,18 @@
     - role: geerlingguy.docker
   post_tasks:
 
-    - name: add user ubuntu to docker group
+    - name: Add user ubuntu to docker group
       ansible.builtin.user:
         name: "{{ ssh_user }}"
         groups: docker
-        append: yes
+        append: true
 
-    - name: reset ssh connection to allow user changes to affect ansible user
+    - name: Reset ssh connection to allow user changes to affect ansible user
       ansible.builtin.meta:
         reset_connection
 
     - name: Create docker-compose.yaml
-      template:
+      ansible.builtin.template:
         src: "docker-compose.yaml.j2"
         dest: /etc/docker-compose/docker-compose.yaml
         owner: "{{ ssh_user }}"
@@ -58,22 +60,22 @@
       register: docker_compose
 
     - name: Download CA cert file from local-ip.co
-      get_url:
+      ansible.builtin.get_url:
         url: "http://local-ip.co/cert/server.pem"
         dest: "/etc/docker-compose/ca/ca.crt"
 
     - name: Download intermediate cert file from local-ip.co
-      get_url:
+      ansible.builtin.get_url:
         url: "http://local-ip.co/cert/chain.pem"
         dest: "/etc/docker-compose/ca/chain.crt"
 
     - name: Download CA key file from local-ip.co
-      get_url:
+      ansible.builtin.get_url:
         url: "http://local-ip.co/cert/server.key"
         dest: "/etc/docker-compose/ca/ca.key"
 
     - name: Download lets-encrypt-r3.pem file from local-ip.co
-      get_url:
+      ansible.builtin.get_url:
         url: "https://letsencrypt.org/certs/lets-encrypt-r3.pem"
         dest: "/etc/docker-compose/ca/lets-encrypt-r3.pem"
 
