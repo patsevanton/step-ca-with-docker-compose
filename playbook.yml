@@ -1,4 +1,5 @@
-- hosts: ipaserver
+- name: Install Smallstap CA and FreeIPA
+  hosts: ipaserver
   become: true
   vars:
     - key_size: 4096
@@ -9,7 +10,7 @@
 
   pre_tasks:
     - name: Update apt cache.
-      apt: update_cache=true cache_valid_time=600
+      ansible.builtin.apt: update_cache=true cache_valid_time=600
       when: ansible_os_family == 'Debian'
 
     - name: Create directory /etc/docker-compose
