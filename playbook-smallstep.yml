@@ -8,10 +8,17 @@
       ansible.builtin.apt:
         deb: https://github.com/smallstep/certificates/releases/download/v{{ smallstep_version }}/step-ca_{{ smallstep_version }}_amd64.deb
 
+    - name: Download smallstep cli deb
+      ansible.builtin.get_url:
+        url: "https://github.com/smallstep/cli/releases/download/v{{ smallstep_version }}/step-cli_{{ smallstep_version }}_amd64.deb"
+        dest: "/tmp/step-cli_{{ smallstep_version }}_amd64.deb"
+
     - name: Install smallstep cli deb
       become: true
       ansible.builtin.apt:
-        deb: wget https://github.com/smallstep/cli/releases/download/v{{ smallstep_version }}/step-cli_{{ smallstep_version }}_amd64.deb
+        deb: "/tmp/step-cli_{{ smallstep_version }}_amd64.deb"
+        state: present
+
 
     - name: Даем возможность запустить сервер step-ca от обычного пользователя
       become: true
