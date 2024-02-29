@@ -5,3 +5,8 @@
 /intermediate.csr
 /intermediate_ca_key
 /root_ca_key
+.terraform.lock.hcl
+.terraform/*
+terraform.*
+private.auto.tfvars
+inventory.yml
