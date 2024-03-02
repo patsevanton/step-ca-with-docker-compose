@@ -1,5 +1,5 @@
 - name: Install Smallstap CA and FreeIPA
-  hosts: ipaserver
+  hosts: step_ca
   become: true
   vars:
     - key_size: 4096

@@ -1,4 +1,4 @@
-- hosts: ipaserver
+- hosts: freeipa
   become: true
   pre_tasks:
     - name: Update apt cache.

@@ -1,10 +1,10 @@
 all:
   children:
-    ipaserver:
+    freipa-ca:
       hosts:
         "freeipa":
           ansible_host: "${freeipa_public_ip}"
-        "smallstep":
+        "step_ca":
           ansible_host: "${smallstep_public_ip}"
   vars:
     ansible_user:  ${ssh_user}
