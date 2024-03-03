@@ -28,14 +28,6 @@
         state: directory
         owner: "{{ ssh_user }}"
         group: "{{ ssh_user }}"
-
-    - name: Create directory /etc/docker-compose/ca
-      ansible.builtin.file:
-        path: /etc/docker-compose/ca
-        state: directory
-        owner: "{{ ssh_user }}"
-        group: "{{ ssh_user }}"
-
   roles:
     - role: geerlingguy.docker
   post_tasks:

@@ -9,7 +9,7 @@ TF_IN_AUTOMATION=1 terraform apply -auto-approve
 ansible-galaxy install geerlingguy.docker
 ansible-galaxy collection install community.docker
 ansible-galaxy collection install community.general
-ansible-galaxy collection install maxhoesel.smallstep>=0.25.2,0.26.0
+ansible-galaxy collection install git+https://github.com/maxhoesel-ansible/ansible-collection-smallstep
 ansible-playbook -i inventory.yml ca.yml
 #ansible-playbook -i inventory.yml playbook-smallstep.yml
 # ansible-playbook -i inventory.yml playbook.yml
