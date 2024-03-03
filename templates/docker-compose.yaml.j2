@@ -1,0 +1,63 @@
+version: "3.8"
+
+services:
+  s5cmd:
+    image: peakcom/s5cmd
+    env:
+      S3_ENDPOINT_URL: https://storage.yandexcloud.net/{{bucket}}
+      AWS_ACCESS_KEY_ID: {{access_key}}
+      AWS_SECRET_ACCESS_KEY: {{secret_key}}
+    volumes:
+      - ./backup:/backup
+  freeipa:
+    image: quay.io/freeipa/freeipa-server:fedora-37-4.10.1
+    container_name: freeipa
+    restart: unless-stopped
+    hostname: {{freeipa_fqdn}}
+    ports:
+      - 123:123/udp
+      - 389:389
+      - 443:443
+      - 464:464
+      - 464:464/udp
+      - 636:636
+      - 80:80
+      - 88:88
+      - 88:88/udp
+    dns:
+      - ns1.yandexcloud.net
+      - 1.1.1.1
+    tty: true
+    stdin_open: true
+    environment:
+      IPA_SERVER_HOSTNAME: {{freeipa_fqdn}}
+      TZ: "Europe/Moscow"
+    command:
+      - --admin-password={{freeipa_password}}
+      - --dirsrv-pin={{freeipa_password}}
+      - --ds-password={{freeipa_password}}
+      - --http-pin={{freeipa_password}}
+      - --realm={{freeipa_domain}}
+      - --unattended
+    healthcheck:
+      test: ["CMD", "/usr/bin/systemctl", "status", "ipa"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 60s
+    cap_add:
+      - SYS_TIME
+      - NET_ADMIN
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - ./data:/data
+      - ./backup:/var/lib/ipa/backup
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv6.conf.lo.disable_ipv6=0
+    security_opt:
+      - "seccomp:unconfined"
+    tmpfs:
+    - /tmp
+    - /run
