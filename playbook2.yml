@@ -1,4 +1,5 @@
-- hosts: freeipa
+- name: Install FreeIPA
+  hosts: freeipa
   become: true
   vars:
     - key_size: 4096

@@ -1,4 +1,4 @@
-- hosts: step_ca
+- hosts: freeipa-smallstep
   become: yes
   tasks:
     # Install and initialize the CA server.

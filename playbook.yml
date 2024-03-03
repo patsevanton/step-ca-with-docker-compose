@@ -1,5 +1,5 @@
-- name: Install Smallstap CA and FreeIPA
-  hosts: step_ca
+- name: Install FreeIPA
+  hosts: freeipa
   become: true
   vars:
     - key_size: 4096
@@ -50,26 +50,6 @@
         group: "{{ ssh_user }}"
         mode: '0644'
       register: docker_compose
-
-    - name: Download CA cert file from local-ip.co
-      ansible.builtin.get_url:
-        url: "http://local-ip.co/cert/server.pem"
-        dest: "/etc/docker-compose/ca/ca.crt"
-
-    - name: Download intermediate cert file from local-ip.co
-      ansible.builtin.get_url:
-        url: "http://local-ip.co/cert/chain.pem"
-        dest: "/etc/docker-compose/ca/chain.crt"
-
-    - name: Download CA key file from local-ip.co
-      ansible.builtin.get_url:
-        url: "http://local-ip.co/cert/server.key"
-        dest: "/etc/docker-compose/ca/ca.key"
-
-    - name: Download lets-encrypt-r3.pem file from local-ip.co
-      ansible.builtin.get_url:
-        url: "https://letsencrypt.org/certs/lets-encrypt-r3.pem"
-        dest: "/etc/docker-compose/ca/lets-encrypt-r3.pem"
 
     - name: Create and start services
       community.docker.docker_compose_v2:
