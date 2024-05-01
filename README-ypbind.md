@@ -148,8 +148,9 @@ postgres@vasquez:~$ createdb --encoding=UTF-8 --owner=step-ca step_ca_db
 
  - URL-адрес ответчика OCSP - http://pki.internal.ypbind.de:8889/
 
-Это можно легко заархивировать, создав пользовательский шаблон сертификата, /etc/step-ca/templates/leaf_certificate.tpl определив дополнительные расширения сертификата:
+Это можно легко заархивировать, создав пользовательский шаблон сертификата, `/etc/step-ca/templates/leaf_certificate.tpl` определив дополнительные расширения сертификата:
 
+```
 {
 {{- if .SANs }}
     "sans": {{ toJson .SANs }},
@@ -164,6 +165,7 @@ postgres@vasquez:~$ createdb --encoding=UTF-8 --owner=step-ca step_ca_db
     "issuingCertificateURL": "http://pki.internal.ypbind.de:8888/intermediate_ca.crt",
     "ocspServer": "http://pki.internal.ypbind.de:8889/",
 }
+```
 Если поставщик настроен в ca.json файле, файл шаблона должен быть добавлен к поставщику (ам).
 
 Важно
