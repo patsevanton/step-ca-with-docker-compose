@@ -142,11 +142,11 @@ postgres@vasquez:~$ createdb --encoding=UTF-8 --owner=step-ca step_ca_db
 По умолчанию в сгенерированных сертификатах отсутствует информация о точке распространения CRL, URL OCSP и доступе к информации о полномочиях.
 
 Дополнительные расширения
-Доступ к информации об полномочиях - http://pki.internal.ypbind.de:8888/intermediate_ca.crt
+ - Доступ к информации об полномочиях - http://pki.internal.ypbind.de:8888/intermediate_ca.crt
 
-Точка распространения CRL - http://pki.internal.ypbind.de:8888/intermediate_ca.crl
+ - Точка распространения CRL - http://pki.internal.ypbind.de:8888/intermediate_ca.crl
 
-URL-адрес ответчика OCSP - http://pki.internal.ypbind.de:8889/
+ - URL-адрес ответчика OCSP - http://pki.internal.ypbind.de:8889/
 
 Это можно легко заархивировать, создав пользовательский шаблон сертификата, /etc/step-ca/templates/leaf_certificate.tpl определив дополнительные расширения сертификата:
 
