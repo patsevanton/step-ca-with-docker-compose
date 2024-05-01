@@ -5,9 +5,10 @@ After the installation of the required packages (`step-ca` for the CA itself and
 
 ### Important
 `The deployment type and the CA name can not be changed afterwards!`
-To initialise the CA, run `step ca init …​`. The environment variable `STEPPATH` can be set to specify the directory of the CA, otherwise the current directory is used:
-```
 
+To initialise the CA, run `step ca init …​`. The environment variable `STEPPATH` can be set to specify the directory of the CA, otherwise the current directory is used:
+
+```
 root@vasquez:~# export STEPPATH=/etc/step-ca
 root@vasquez:~# step ca init --dns=pki.internal.ypbind.de --dns=pki.ypbind.de --address='[::]:8443'  --address=0.0.0.0:8443  --name="Certificate authority for internal.ypbind.de" --deployment-type=standalone --provisioner="root@internal.ypbind.de" --password-file=/etc/step/initial_pass
 
