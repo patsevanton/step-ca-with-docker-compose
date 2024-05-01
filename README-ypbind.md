@@ -1,57 +1,54 @@
-[Step-CA](https://smallstep.com/docs/step-ca) is sophisticated open source (Apache License 2.0) CA system with support for the ACME protocol.
+Step-CA - это сложная система центра сертификации с открытым исходным кодом (Apache License 2.0) с поддержкой протокола ACME.
 
-# Initialisation
-After the installation of the required packages (`step-ca` for the CA itself and `step-cli` for the client program), the CA itself can be initialised. For the initialisation, the DNS names, the CA name (will be part of the certificate subject of the Root CA and ther intermediate CA certificate), the deployment type and IP and port for the CA service to listen are required.
+Инициализация
+После установки необходимых пакетов (step-ca для самого центра сертификации и step-cli для клиентской программы) сам центр сертификации может быть инициализирован. Для инициализации требуются DNS-имена, имя центра сертификации (будет частью субъекта сертификата корневого центра сертификации и сертификата промежуточного центра сертификации), тип развертывания, а также IP и порт для прослушивания службой CA.
 
-### Important
-`The deployment type and the CA name can not be changed afterwards!`
+Важно
+Тип развертывания и имя центра сертификации впоследствии изменить нельзя!
+Чтобы инициализировать центр сертификации, выполните команду step ca init …​. Переменная среды STEPPATH может быть настроена так, чтобы указывать каталог центра сертификации, в противном случае используется текущий каталог:
 
-To initialise the CA, run `step ca init …​`. The environment variable `STEPPATH` can be set to specify the directory of the CA, otherwise the current directory is used:
+root@vasquez:~# export STEPPATH=/etc/step-ca 
+root@vasquez: ~# step ca init --dns=pki.internal.ypbind.de --dns=pki.ypbind.de --адрес='[::]:8443' --address=0.0.0.0:8443 --name="Центр сертификации для internal.ypbind.de" --deployment-type=standalone --provisioner="root@internal.ypbind.de" --password-file=/etc/step/initial_pass
 
-```
-root@vasquez:~# export STEPPATH=/etc/step-ca
-root@vasquez:~# step ca init --dns=pki.internal.ypbind.de --dns=pki.ypbind.de --address='[::]:8443'  --address=0.0.0.0:8443  --name="Certificate authority for internal.ypbind.de" --deployment-type=standalone --provisioner="root@internal.ypbind.de" --password-file=/etc/step/initial_pass
+Создание корневого сертификата ... готово!
+Создание промежуточного сертификата ... готово!
 
-Generating root certificate... done!
-Generating intermediate certificate... done!
+✔ Корневой сертификат: /etc/step/certs/root_ca.crt
+✔ Закрытый ключ Root: /etc/step/secrets/root_ca_key
+✔ Отпечаток Root: b7413e0c6a0572862fcc81feddefef3bdfe76fe03c56058571c4b7d859a2924f
+✔ Промежуточный сертификат: /etc/step/сертификаты/intermediate_ca.crt
+✔ Промежуточный закрытый ключ: /etc/step/секреты/intermediate_ca_key
+✔ Папка базы данных: /etc/step/db
+✔ Конфигурация по умолчанию: /etc/step/config/defaults.json
+✔ Конфигурация центра сертификации: /etc/step/config/ca.json
 
-✔ Root certificate: /etc/step/certs/root_ca.crt
-✔ Root private key: /etc/step/secrets/root_ca_key
-✔ Root fingerprint: b7413e0c6a0572862fcc81feddefef3bdfe76fe03c56058571c4b7d859a2924f
-✔ Intermediate certificate: /etc/step/certs/intermediate_ca.crt
-✔ Intermediate private key: /etc/step/secrets/intermediate_ca_key
-✔ Database folder: /etc/step/db
-✔ Default configuration: /etc/step/config/defaults.json
-✔ Certificate Authority configuration: /etc/step/config/ca.json
+Ваш PKI готов к работе. Чтобы сгенерировать сертификаты для отдельных служб, см. раздел "Справка step ca".
 
-Your PKI is ready to go. To generate certificates for individual services see 'step help ca'.
+ОБРАТНАЯ СВЯЗЬ 😍 🍻
+ Утилита step не предназначена для статистики использования. Она не звонит по телефону 
+ домой. Но ваш отзыв чрезвычайно ценен. Любая информация, которую вы можете предоставить
+ помогает информация о том, как вы используете "step". Пожалуйста, отправьте нам одно-два предложения, 
+ хорошее или плохое на feedback@smallstep.com или присоединяйтесь к обсуждениям на GitHub 
+ https: //github.com/smallstep/certificates/discussions и к нашему Discord 
+ https: //u.step.sm/discord.
+Обратите внимание на отпечаток root, он требуется начальной загрузкой для каждого пользователя. Его также можно получить из выходных данных при запуске step-ca службы.
 
-FEEDBACK 😍 🍻
-  The step utility is not instrumented for usage statistics. It does not phone
-  home. But your feedback is extremely valuable. Any information you can provide
-  regarding how you’re using `step` helps. Please send us a sentence or two,
-  good or bad at feedback@smallstep.com or join GitHub Discussions
-  https://github.com/smallstep/certificates/discussions and our Discord
-  https://u.step.sm/discord.
-```
-Take a note of the root fingerprint, it is required by the bootstrap for every user. It can also be obtained from the output at the start of the step-ca service.
+Используйте PostgreSQL в качестве серверной части базы данных
+Тип базы данных по умолчанию - BoltDB. Недостатком BoltDB является то, что доступ ограничен одним процессом, в данном случае step-ca службой. В продуктивной среде несколько процессов будут обращаться к базе данных одновременно, например, для создания CRL, экспорта статистики в Prometheus, …
 
-# Use PostgreSQL as database backend
-The default database type is [BoltDB](https://dbdb.io/db/boltdb). The downside of BoltDB is the access is limited to a single process, in this case the step-ca service. In a productive environment multiple processess will access the database at the same time, e.g. to crate CRL, export statistics to Prometheus, …
+bacekend базы данных можно легко изменить. Не имеет значения, используется PostgreSQL или MySQL / MariaDB. Единственное отличие заключается в конфигурации базы данных и разделе конфигурации в конфигурации Step-CA.
 
-The database bacekend can be changed easily. It doesn’t matter if PostgreSQL or MySQL/MariaDB is used. The only difference is the database configuration and the configuration section in the Step-CA configuration.
-
-Just install PostgreSQL, add a user - in this case step-ca - for the database:
+Просто установите PostgreSQL, добавьте пользователя - в данном случае step-ca - для базы данных:
 
 postgres@vasquez:~$ createuser --no-createdb --login --pwprompt --no-createrole --no-superuser --no-replication step-ca
-Enter password for new role:
-Enter it again:
-Create the empty database step_ca_db in this case and assign it to the new user:
+Введите пароль для новой роли:
+Введите его еще раз:
+Создайте пустую базу данных step_ca_db в этом случае и назначьте ее новому пользователю:
 
 postgres@vasquez:~$ createdb --encoding=UTF-8 --owner=step-ca step_ca_db
-Note: The encoding is not required, but for the sake of consistency all my databases uses UTF-8 as encoding.
+Примечание: Кодировка не требуется, но для обеспечения согласованности все мои базы данных используют UTF-8 в качестве кодировки.
 
-In the configuration file of the CA (${STEPPATH}/config/ca.json) replace configuration in the db dictionary with the PostgreSQL configuration:
+В файле конфигурации центра сертификации (${STEPPATH}/config/ca.json) замените конфигурацию в db словаре конфигурацией PostgreSQL:
 
 --- /etc/step-ca/config/ca.json.orig       2022-07-23 14:36:14.192091833 +0200
 +++ /etc/step-ca/config/ca.json    2022-07-23 14:38:18.671617838 +0200
@@ -75,8 +72,8 @@ In the configuration file of the CA (${STEPPATH}/config/ca.json) replace configu
 -}
 \ No newline at end of file
 +}
-Store provisioners in the database
-Instead of storing the provisioners in the configuration file, it is more convenient to use the database instead. This can easily be archived by removing all provisioners from the configuration file ca.json and +enable support for administrative remote provisioners by setting enableAdmin to true in the authority section:
+Сохраняйте провайдеров в базе данных
+Вместо хранения провайдеров в файле конфигурации удобнее использовать базу данных. Это можно легко заархивировать, удалив всех провайдеров из файла конфигурации ca.json и + включить поддержку удаленных администраторов, установив enableAdmin значение true в authority разделе:
 
 --- /etc/step-ca/config/ca.json.lprov     2022-07-23 15:00:09.130731156 +0200
 +++ /etc/step-ca/config/ca.json    2022-07-23 15:00:39.816582101 +0200
@@ -105,12 +102,12 @@ Instead of storing the provisioners in the configuration file, it is more conven
         },
         "tls": {
                 "cipherSuites": [
-This will add a JWK provisioner Admin JWK to the database and create the default user step with super administration privileges to the newly created provisioner. The password of the step user is the same password as for the root CA private key, provided by the step ca init process.
+Это добавит поставщика JWK Admin JWK в базу данных и создаст пользователя по умолчанию step с правами суперадминистрации для вновь созданного поставщика. Пароль step пользователя совпадает с паролем для закрытого ключа корневого центра сертификации, предоставленного step ca init процессом.
 
-Enable ACME provisioner
-Because most service certificates will be renewed using the ACME protocol, the ACME provisioner must be added to the provisioner section of the configuration file.
+Включить ACME provisioner
+Поскольку большинство сертификатов обслуживания будут обновляться с использованием протокола ACME, ACME provisioner необходимо добавить в provisioner раздел файла конфигурации.
 
-By default server certificates for internal services will be valid for 90 days (2160 hours) and if no CN can be found a value of the subject alternate name extension will be used instead (forceCN set to true).
+По умолчанию сертификаты сервера для внутренних служб будут действительны в течение 90 дней (2160 часов), и если CN не может быть найден, вместо него будет использоваться значение расширения альтернативного имени субъекта (forceCN установлено в true значение).
 
 --- /etc/step-ca/config/ca.json.no_acme     2022-08-14 09:57:08.869306887 +0200
 +++ /etc/step-ca/config/ca.json 2022-08-14 09:59:41.768801437 +0200
@@ -134,17 +131,17 @@ By default server certificates for internal services will be valid for 90 days (
                 "claims": {
                     "minTLSCertDuration": "5m",
                     "maxTLSCertDuration": "43830h",
-Adding additional certificate extensions
-By default generated certificates lack information about CRL distribution point, OCSP URL and authority information access.
+Добавление дополнительных расширений сертификатов
+По умолчанию в сгенерированных сертификатах отсутствует информация о точке распространения CRL, URL OCSP и доступе к информации о полномочиях.
 
-Additional extensions
-Authority information access - http://pki.internal.ypbind.de:8888/intermediate_ca.crt
+Дополнительные расширения
+Доступ к информации об полномочиях - http://pki.internal.ypbind.de:8888/intermediate_ca.crt
 
-CRL distribution point - http://pki.internal.ypbind.de:8888/intermediate_ca.crl
+Точка распространения CRL - http://pki.internal.ypbind.de:8888/intermediate_ca.crl
 
-OCSP responder URL - http://pki.internal.ypbind.de:8889/
+URL-адрес ответчика OCSP - http://pki.internal.ypbind.de:8889/
 
-This can easily archived by creating a custom certificate template /etc/step-ca/templates/leaf_certificate.tpl defining the additional certificate extensions:
+Это можно легко заархивировать, создав пользовательский шаблон сертификата, /etc/step-ca/templates/leaf_certificate.tpl определив дополнительные расширения сертификата:
 
 {
 {{- if .SANs }}
@@ -160,22 +157,22 @@ This can easily archived by creating a custom certificate template /etc/step-ca/
     "issuingCertificateURL": "http://pki.internal.ypbind.de:8888/intermediate_ca.crt",
     "ocspServer": "http://pki.internal.ypbind.de:8889/",
 }
-If the provisioner is configured in the ca.json file, the template file must be added to the provisioner(s).
+Если поставщик настроен в ca.json файле, файл шаблона должен быть добавлен к поставщику (ам).
 
-Important
-Provisioners in the database
-If the provisioners are stored in the databsse, like in this setup, the template file must be configured for every provisioner in the database. Futhermore all newly created provisioners must be created with the new certificate template too! At the moment templateFile can’t be set by step ca provisioner add / step ca provisioner update for remote provisioners, see Let step ca provisioner update set the templateFile option of a provisioner #720
-Site specific changes
-In an enterprise environment there are some systems (like management boards for servers) that doesn’t support the ACME protocol. As servers are usually replaced every three years and the management boards are in a sepearted network segment, accessible only from some dedicated jump hostss, the will use SSL certificates valid for about 3 years.
+Важно
+Провайдеры в базе данных
+Если провайдеры хранятся в базе данных, как в этой настройке, файл шаблона должен быть настроен для каждого провайдера в базе данных. Кроме того, все вновь созданные поставщики также должны быть созданы с новым шаблоном сертификата! На данный момент templateFile не может быть настроен с помощью step ca provisioner add / step ca provisioner update для удаленных провайдеров, см. Разрешите step ca provisioner update установить параметр templateFile для провайдера #720
+Изменения, зависящие от сайта
+В корпоративной среде существуют некоторые системы (например, платы управления серверами), которые не поддерживают протокол ACME. Поскольку серверы обычно заменяются каждые три года, а платы управления находятся в отдельном сегменте сети, доступном только с некоторых выделенных хостов jump, будут использоваться SSL-сертификаты, действительные около 3 лет.
 
-Note
-Management boards
-Although most management boards support the Redfish REST API, not every hardware vendor supports automated SSL certificate deployment. Additionally replacing the SSL certificates of the management board will require a reboot of the management processor which will disrupt access to the management board.
-For this site, all service certificates will be valid for 30 days instead of the default of 1 day because some services require restart upon SSL certificate changes which will lead to disruption for some clients, e.g. using REDIS publish/subscribe, MQTT or HTTP long polling, and a reconnect storm.
+Примечание
+Платы управления
+Хотя большинство систем управления поддерживают Redfish REST API, не каждый поставщик оборудования поддерживает автоматическое развертывание SSL-сертификатов. Кроме того, для замены SSL-сертификатов системы управления потребуется перезагрузка процессора управления, что приведет к нарушению доступа к системе управления.
+Для этого сайта все сертификаты обслуживания будут действительны в течение 30 дней вместо установленного по умолчанию 1 дня, поскольку некоторые службы требуют перезапуска при изменении SSL-сертификата, что приведет к сбоям в работе некоторых клиентов, например, при использовании REDIS publish / subscribe, длительного опроса MQTT или HTTP и шторма повторного подключения.
 
-To avoid signing of certificates for other domains, the allowed (and rejected) values for x509.v3 subjectAltername extensions can be limited.
+Чтобы избежать подписания сертификатов для других доменов, разрешенные (и отклоненные) значения для расширений subjectAltername x509.v3 могут быть ограничены.
 
-This can be archived by extending the authority section of the CA configuration file ca.json:
+Это можно заархивировать, расширив authority раздел файла конфигурации центра сертификации ca.json:
 
 --- /etc/step-ca/config/ca.json.unrstr     2022-07-24 10:53:07.580078893 +0200
 +++ /etc/step-ca/config/ca.json 2022-07-24 11:09:54.808077262 +0200
@@ -213,453 +210,452 @@ This can be archived by extending the authority section of the CA configuration 
         },
         "tls": {
                 "cipherSuites": [
-Hardening
-Removal of the private key of the root CA
-All certificates are signed by the intermediate CA so there is no need to store the private key of the Root CA on the system. Because it could be required to use the root CA private key later, e.g. upon rotation or replacement of the intermediate certificate keys, store the private key of the root CA and it’s encryption password in a save location before removing the root CA private key from the system!
+Усиление
+Удаление закрытого ключа корневого центра сертификации
+Все сертификаты подписываются промежуточным центром сертификации, поэтому нет необходимости хранить закрытый ключ корневого центра сертификации в системе. Поскольку может потребоваться использовать закрытый ключ корневого центра сертификации позже, например, при ротации или замене ключей промежуточных сертификатов, сохраните закрытый ключ корневого центра сертификации и пароль для шифрования в месте сохранения, прежде чем удалять закрытый ключ корневого центра сертификации из системы!
 
-The private SSL key of the root certificate is stored in ${STEPPATH}/secrets/root_ca_key
+Закрытый SSL-ключ корневого сертификата хранится в ${STEPPATH}/secrets/root_ca_key
 
-Important: Do NOT remove the public key! All clients require the public key of your root CA for certificate validation.
+Важно: НЕ удаляйте открытый ключ! Всем клиентам требуется открытый ключ вашего корневого центра сертификации для проверки сертификата.
 
-Change the password if the intermediate CA
-The private keys of the intermediate CA and the root CA are encrypted using the same password.
+Измените пароль, если промежуточный центр сертификации
+Закрытые ключи промежуточного центра сертификации и корневого центра сертификации зашифрованы с использованием одного и того же пароля.
 
-To avoid password leakage of the encryption password, the password of the encrypted SSL key of the intermediate CA should be changed.
+Чтобы избежать утечки пароля шифрования, пароль зашифрованного SSL-ключа промежуточного центра сертификации должен быть изменен.
 
-This can be done by running step ca crypto change-pass:
+Это можно сделать, выполнивstep ca crypto change-pass:
 
-root@vasquez:~# step crypto change-pass /etc/step-ca/secrets/intermediate_ca_key
-Please enter the password to decrypt /etc/step-ca/secrets/intermediate_ca_key:
-Please enter the password to encrypt /etc/step-ca/secrets/intermediate_ca_key:
-✔ Would you like to overwrite /etc/step-ca/secrets/intermediate_ca_key [y/n]: y
-Your key has been saved in /etc/step-ca/secrets/intermediate_ca_key.
-Save the new password in a file which will be provided to CA service, for instance in secrets/intermediate.pass below ${STEPPATH}
+root@vasquez:~# step crypto change-передать /etc/step-ca/secrets/intermediate_ca_key
+Пожалуйста, введите пароль для расшифровки /etc/step-ca/secrets/intermediate_ca_key:
+Пожалуйста, введите пароль для шифрования /etc/step-ca/secrets/intermediate_ca_key:
+✔ Хотите ли вы перезаписать /etc/step-ca/secrets/intermediate_ca_key [y / n]: y
+Ваш ключ был сохранен в /etc/step-ca/secrets/intermediate_ca_key.
+Сохраните новый пароль в файле, который будет предоставлен службе центра сертификации, например, в secrets/intermediate.pass ниже ${STEPPATH}
 
-Important! Never provide the password as command line option to the service! Every user (even nobody) can use connmands like ps to view the command line - and the password - of all processes. Important! Don’t use environment variables for passwords too, they are exported to /proc/<pid>/env of each process and can be easily read, e.g. by xargs -0 < /proc/<pid>/env
+Важно! Никогда не предоставляйте службе пароль в качестве опции командной строки! Каждый пользователь (даже nobody) может использовать команды подключения, подобные ps для просмотра командной строки - и пароля - всех процессов. Важно! Также не используйте переменные среды для паролей, они экспортируются в /proc/<pid>/env каждого процесса и могут быть легко прочитаны, например, с помощью xargs -0 < /proc/<pid>/env
 
-Create a service user for the CA service
-Following the principal of leaste privilege, it is not recommended to run the CA service as root. Simply create a service user for the CA service, e.g.:
+Создайте пользователя службы для службы CA
+В соответствии с принципом наименьших привилегий не рекомендуется запускать службу CA как root. Просто создайте пользователя службы для службы CA, например:
 
-getent passwd step
-step:*:777:777:Step-CA service user:/etc/step-ca:/sbin/nologin
-Enforcing permissions and ownership
-Depending on your umask settings, the permissions of the files created can be to permissive. Additionally all files and directories must belong to the service user - called step in this case - to allow the CA service to access the data.
+шаг получения пароля 
+шаг: *:777:777: Пользователь службы Step-CA:/etc/step-ca:/sbin/nologin
+Обеспечение соблюдения разрешений и прав собственности
+В зависимости от ваших umask настроек разрешения для создаваемых файлов могут быть разрешающими. Кроме того, все файлы и каталоги должны принадлежать пользователю службы, в данном случае называемойstep, чтобы разрешить службе центра сертификации доступ к данным.
 
-A good permission should be:
+Хорошее разрешение должно быть:
 
-root@vasquez:~# find /etc/step-ca/ -ls
-       34      1 drwx------   7 step     step            7 Jul 23 14:48 /etc/step-ca/
-       11      1 drwx------   2 step     step            4 Jul 23 14:29 /etc/step-ca/certs
-      140      2 -rw-------   1 step     step          818 Jul 23 14:29 /etc/step-ca/certs/root_ca.crt
-      134      2 -rw-------   1 step     step          875 Jul 23 14:29 /etc/step-ca/certs/intermediate_ca.crt
-       17      1 drwx------   2 step     step            5 Jul 24 11:09 /etc/step-ca/config
-      121      2 -rw-------   1 step     step         1276 Jul 24 11:09 /etc/step-ca/config/ca.json
-      158      1 -rw-------   1 step     step          225 Jul 23 15:50 /etc/step-ca/config/defaults.json
-      149      1 drwx------   2 step     step            2 Jul 23 14:29 /etc/step-ca/db
-       14      1 drwx------   2 step     step            5 Jul 24 11:37 /etc/step-ca/secrets
-      233      1 -rw-------   1 step     step           70 Jul 24 11:37 /etc/step-ca/secrets/intermediate.pass
-      137      1 -rw-------   1 step     step          314 Jul 24 11:34 /etc/step-ca/secrets/intermediate_ca_key
-       20      1 drwx------   2 step     step            2 Jul 23 14:29 /etc/step-ca/templates
-Info: Don’t worry about the access to the public key of the root CA, it can be obtained either by bootstraping the step environment of the user or by download from https://<your_ca>:8443/roots.pem, e.g. https://pki.internal.ypbind.de:8443/roots.pem in this case.
+root@vasquez:~# find /etc/step-ca/ -ls 
+ 34 1 drwx------ 7 step step 7 июля 23:48 /etc/step-ca/
+ 11 1 drwx------ 2 шаг 4 23 июля 14:29 /etc/step-ca/сертификаты
+ 140 2 -rw------- 1 пошаговый шаг 818 23 июля 14:29 /etc/step-ca/сертификаты/root_ca.crt
+ 134 2 -rw------- 1 step step 875 23 июля 14:29 /etc/step-ca/сертификаты/intermediate_ca.crt 
+ 17 1 drwx------ 2 шаг шаг 5 24 июля 11:09 /etc/step-ca/config 
+ 121 2 -rw------- 1 шаг шаг 1276 24 июля 11:09 /etc/step-ca/config/ca.json 
+ 158 1 -rw------- 1 пошаговый шаг 225 23 июля 15:50 /etc/step-ca/config/defaults.json 
+ 149 1 drwx------ 2 шаг 2 23 июля 14:29 /etc/step-ca/db
+ 14 1 drwx------ 2 шаг 5 24 июля 11:37 /etc/step-ca/секреты
+ 233 1 -rw------- 1 пошаговый шаг 70 24 июля 11:37 /etc/step-ca/секреты / промежуточный уровень.прохождение 
+ 137 1 -rw------- 1 пошаговый шаг 314 24 июля 11:34 /etc/step-ca/секреты/intermediate_ca_key
+ 20 1 drwx------ 2 шаг 2 23 июля 14:29 /etc/step-ca/шаблоны
+Информация: Не беспокойтесь о доступе к открытому ключу корневого центра сертификации, его можно получить либо путем начальной загрузки из step среды пользователя, либо путем загрузки из https://<your_ca>:8443/roots.pem, например, https://pki.internal.ypbind.de:8443/roots.pem в этом случае.
 
-Running the CA as a service for remote access
-step-ca runs as a process to allow remote access to the CA.
+Запуск центра сертификации как службы для удаленного доступа
+step-ca выполняется как процесс, разрешающий удаленный доступ к центру сертификации.
 
-Although the package don’t contain a service unit for systemd, it can be easily created.
+Хотя пакет не содержит сервисного модуля для systemd, его можно легко создать.
 
-A systemd unit file called step-ca.service could look like:
+Файл модуля systemd с именем step-ca.service может выглядеть следующим образом:
 
-[Unit]
-Description=step-ca service
-Documentation=https://smallstep.com/docs/step-ca
-Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
-After=network-online.target sssd.service
-Wants=network-online.target sssd.service
-StartLimitIntervalSec=30
-StartLimitBurst=3
+[Модуль]
+Описание= служба step-ca
+Документация= https://smallstep.com/docs/step-ca
+Документация= https://smallstep.com/docs/step-ca/центр сертификации-сервер-производство
+После = network-online.target sssd.service
+Хочет = сеть-онлайн.целевой sssd.service
+StartLimitIntervalSec = 30
+StartLimitBurst = 3
 
-[Service]
-Type=simple
-User=step
-Group=step
-Environment=STEPPATH=/etc/step-ca
+[Служба]
+Тип = простой
+Пользователь = шаг
+Группа = шаг
+Environment= ПОШАГОВЫЙ ПУТЬ =/etc/step-ca
 WorkingDirectory=/etc/step-ca
-ExecStart=/usr/bin/step-ca config/ca.json --password-file secrets/intermediate.pass
-ExecReload=/bin/kill --signal HUP $MAINPID
-Restart=on-failure
-RestartSec=5
-TimeoutStopSec=30
-StartLimitInterval=30
-StartLimitBurst=3
+ExecStart=/usr/bin/step-ca config/ca.json --секреты файла паролей/intermediate.pass
+ExecReload=/bin/kill --сигнал HUP $MAINPID
+Перезапуск = при сбое
+RestartSec = 5
+Время ожидания stopsec = 30
+StartLimitInterval = 30
+StartLimitBurst = 3
 
-; Process capabilities & privileges
+; Возможности процесса и привилегии
 AmbientCapabilities=CAP_NET_BIND_SERVICE
 CapabilityBoundingSet=CAP_NET_BIND_SERVICE
-SecureBits=keep-caps
-NoNewPrivileges=yes
+SecureBits = keep-caps
+Отсутствие новых привилегий = да
 
-; Sandboxing
-; This sandboxing works with YubiKey PIV (via pcscd HTTP API), but it is likely
-; too restrictive for PKCS#11 HSMs.
+; Изолированная среда
+; Эта песочница работает с YubiKey PIV (через pcscd HTTP API), но, скорее всего, это 
+; слишком ограничительно для HSM PKCS # 11.
 ;
-; NOTE: Comment out the rest of this section for troubleshooting.
-ProtectSystem=full
-ProtectHome=true
-RestrictNamespaces=true
-RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
-PrivateTmp=true
-ProtectClock=true
-ProtectControlGroups=true
-ProtectKernelTunables=true
-ProtectKernelLogs=true
-ProtectKernelModules=true
-LockPersonality=true
-RestrictSUIDSGID=true
-RemoveIPC=true
-RestrictRealtime=true
-PrivateDevices=true
+; ПРИМЕЧАНИЕ: Прокомментируйте остальную часть этого раздела для устранения неполадок.
+ProtectSystem = полный.
+ProtectHome = true
+RestrictNamespaces = true
+Restrict addressfamilies= AF_UNIX AF_INET AF_INET6
+PrivateTmp = true
+ProtectClock = true
+ProtectControlGroups = true
+ProtectKernelTunables = true
+ProtectKernelLogs = true
+ProtectKernelModules = true
+LockPersonality = true
+RestrictSUIDSGID = true
+RemoveIPC = true
+RestrictRealtime = true
+PrivateDevices = true
 SystemCallFilter=@system-service
-SystemCallArchitectures=native
-MemoryDenyWriteExecute=true
+SystemCallArchitectures = native
+MemoryDenyWriteExecute = true
 ReadWriteDirectories=/etc/step-ca/db
 
-[Install]
-WantedBy=multi-user.target
-After reloading the systemd configuration (systemctl daemon-reload) the service can be enabled and stared (systemctl enable --now step-ca.service)
+[Установить]
+WantedBy= многопользовательский.target
+После перезагрузки конфигурации systemd (systemctl daemon-reload) службу можно включить и просмотреть (systemctl enable --now step-ca.service)
 
-Handling provisioners
-Administrators and super administrators
-An administrator account are accounts which can manage providers, where as the super administrator accounts can manage providers and manage administrator accounts.
+Работа с поставщиками
+Администраторы и суперадминистраторы
+Учетная запись администратора - это учетные записи, которые могут управлять поставщиками, где в качестве учетных записей суперадминистратора могут управлять поставщиками и управлять учетными записями администратора.
 
-Default JWK provisioner
-The configuration of the remote provisioner can be queried after the service start by running:
+Поставщик JWK по умолчанию
+Конфигурацию удаленного поставщика услуг можно запросить после запуска службы, выполнив:
 
-[maus@vasquez:~]$ step ca admin list
-No admin credentials found. You must login to execute admin commands.
-✔ Please enter admin name/subject (e.g., name@example.com): step
-✔ Provisioner: Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-Please enter the password to decrypt the provisioner key:
-SUBJECT PROVISIONER     TYPE
-step    Admin JWK (JWK) SUPER_ADMIN
-Adding additional super administrator accounts
-In a real envirionment of multiple administrators. This involves managing of accounts for SSL certificate processes (signing, revoking, renewal, …)
+[maus @vasquez: ~] $ список администраторов центра сертификации step
+Учетные данные администратора не найдены. Вы должны войти в систему, чтобы выполнять команды администратора.
+✔ Пожалуйста, введите имя администратора / тему (например, name@example.com): шаг
+✔ Поставщик: администратор JWK (JWK) [пользователь: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+Пожалуйста, введите пароль для расшифровки ключа provisioner:
+ТИП СУБЪЕКТА PROVISIONER 
+step Admin JWK (JWK) SUPER_ADMIN
+Добавление дополнительных учетных записей суперадминистратора
+В реальной среде с несколькими администраторами. Это включает в себя управление учетными записями для процессов SSL-сертификатов (подписание, отзыв, продление, ...).
 
-To add an account with super administration rights, the command line option --super must be provided, e.g.:
+Чтобы добавить учетную запись с правами администратора, необходимо указать опцию командной строки --super, например:
 
-[maus@vasquez:~]$ step ca admin add --super superadmin "Admin JWK"
-No admin credentials found. You must login to execute admin commands.
-✔ Please enter admin name/subject (e.g., name@example.com): step
-✔ Provisioner: Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-Please enter the password to decrypt the provisioner key:
-SUBJECT         PROVISIONER     TYPE
-superadmin      Admin JWK (JWK) SUPER_ADMIN
-Removal of the default super administrator
-After the creation of the first new super administrator account, the default account step should be removed. This will be done by the step ca admin remove command:
+[maus@vasquez: ~]$ добавить администратора step ca -- super superadmin "Admin JWK"
+Учетные данные администратора не найдены. Вы должны войти в систему, чтобы выполнять команды администратора.
+✔ Пожалуйста, введите имя администратора / тему (например, name@example.com): шаг
+✔ Поставщик: администратор JWK (JWK) [пользователь: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+Пожалуйста, введите пароль для расшифровки ключа провайдера:
+ТИП СУБЪЕКТА-ПРОВАЙДЕРА 
+администратор superadmin JWK (JWK) SUPER_ADMIN
+Удаление суперадминистратора по умолчанию
+После создания первой новой учетной записи суперадминистратора учетная запись по умолчанию step должна быть удалена. Это будет сделано с помощью step ca admin remove команды:
 
-[maus@vasquez:~]$ step ca admin remove step
-No admin credentials found. You must login to execute admin commands.
-✔ Please enter admin name/subject (e.g., name@example.com): superadmin
-✔ Provisioner: Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-Please enter the password to decrypt the provisioner key:
-✔ Admin: subject: step, provisioner: Admin JWK(JWK), type: SUPER_ADMIN
-Adding a (non-super admin) JWT provisioner
-For regular tasks a JWT provisioner (without super admin privileges) can be added by a provisioner with super admin privileges
+[maus @vasquez: ~] $ step администратор центра сертификации удалить шаг
+Учетные данные администратора не найдены. Вы должны войти в систему, чтобы выполнять команды администратора.
+✔ Пожалуйста, введите имя администратора / тему (например, name@example.com): superadmin
+✔ Поставщик: администратор JWK (JWK) [пользователь: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+Пожалуйста, введите пароль для расшифровки ключа провайдера:
+✔ Администратор: тема: step, провайдер: Администратор JWK (JWK), тип: SUPER_ADMIN
+Добавление (не суперадминистратора) JWT provisioner
+Для обычных задач поставщик JWT (без прав суперадминистратора) может быть добавлен поставщиком с правами суперадминистратора
 
-maus@vasquez:~$ step ca provisioner add new_admin --type JWK --create
-Please enter a password to encrypt the provisioner private key? [leave empty and we'll generate one]:
-No admin credentials found. You must login to execute admin commands.
-✔ Please enter admin name/subject (e.g., name@example.com): superadmin
-Use the arrow keys to navigate: ↓ ↑ → ←
-What provisioner key do you want to use?
-  ▸ Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-    acme (ACME)
-    maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
-✔ Provisioner: Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-Please enter the password to decrypt the provisioner key:
-Removing a provisioner
-Using a provisioner with super admin privileges, existing provisioners can be removed by running the `step ca admin
+maus@vasquez:~$ step ca provisioner add new_admin --введите JWK --create
+Пожалуйста, введите пароль для шифрования закрытого ключа provisioner? [оставьте пустым, и мы создадим его]:
+Учетные данные администратора не найдены. Вы должны войти в систему, чтобы выполнять команды администратора.
+✔ Пожалуйста, введите имя администратора / тему (например, name@example.com): superadmin
+Используйте клавиши со стрелками для навигации: ↓ ↑ → ←
+Какой ключ провайдера вы хотите использовать?
+ ▸ Администратор JWK (JWK) [пользователь: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+ acme (ACME)
+ maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
+✔ Поставщик: администратор JWK (JWK) [пользователь: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+Пожалуйста, введите пароль для расшифровки ключа поставщика:
+Удаление поставщика
+При использовании провайдера с правами суперадминистратора существующие провайдеры могут быть удалены с помощью команды `step ca admin
 
-maus@vasquez:~$ step ca  provisioner remove new_admin
-No admin credentials found. You must login to execute admin commands.
-✔ Please enter admin name/subject (e.g., name@example.com): superadmin
-Use the arrow keys to navigate: ↓ ↑ → ←
-What provisioner key do you want to use?
-  ▸ Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-    acme (ACME)
-    maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
-    new_admin (JWK) [kid: mLpg9HogT6u3TZUmgxlHjPS7iStJB5lC-k186mKg6k0]
-✔ Provisioner: Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-Please enter the password to decrypt the provisioner key:
-Listing existing provisioners
-The list of existing provisioners can be obtained by running the step ca provisioner list command which will output te informations about present provisioners in JSON format.
+maus@vasquez: ~$ step ca provisioner удаляет new_admin
+Учетные данные администратора не найдены. Вы должны войти в систему, чтобы выполнять команды администратора.
+✔ Пожалуйста, введите имя администратора / тему (например, name@example.com): superadmin
+Используйте клавиши со стрелками для навигации: ↓ ↑ → ←
+Какой ключ провайдера вы хотите использовать?
+ ▸ Администратор JWK (JWK) [пользователь: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+ acme (ACME)
+ maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
+ new_admin (JWK) [kid: mLpg9HogT6u3TZUmgxlHjPS7iStJB5lC-k186mKg6k0]
+✔ Поставщик: администратор JWK (JWK) [пользователь: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+Пожалуйста, введите пароль для расшифровки ключа поставщика:
+Список существующих провайдеров
+Список существующих провайдеров можно получить, выполнив step ca provisioner list команду, которая выведет информацию о существующих провайдерах в формате JSON.
 
-This can be filtered using jq, for instance to list the names of existing provisioners:
+Это можно отфильтровать с помощью jq, например, для получения списка имен существующих провайдеров:
 
-maus@vasquez:~$ step ca provisioner list | jq -r '.[].name'
-Admin JWK
-acme
-maus
+maus@vasquez: ~$ список поставщиков step ca | jq -r '.[].name'
+Администратор JWK 
+acme 
+maus 
 new_admin
-Adding provisioner for ACME
-If possible, SSL certificates for services should be short lived and renewed automatically using the ACME protocol. To allow certificate renewal using ACME, a provisioner for ACME must be added too.
+Добавление provisioner для ACME
+По возможности, срок действия SSL-сертификатов для служб должен быть кратковременным, и они должны автоматически обновляться с использованием протокола ACME. Чтобы разрешить продление сертификата с использованием ACME, также необходимо добавить поставщика для ACME.
 
-This can be easily done by running:
+Это можно легко сделать, выполнив:
 
-[maus@vasquez:~]$ step ca provisioner add acme --type ACME
-No admin credentials found. You must login to execute admin commands.
-✔ Please enter admin name/subject (e.g., name@example.com): superadmin
-✔ Provisioner: Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-Please enter the password to decrypt the provisioner key:
-Steps in a multi-admin environment
-In a larger, real environment administration will be done multiple persons. New administrators will join, other administrators will leave or change to another customers.
+[maus@vasquez: ~]$ step ca provisioner добавить acme --введите ACME
+Учетные данные администратора не найдены. Вы должны войти в систему, чтобы выполнять команды администратора.
+✔ Пожалуйста, введите имя администратора / тему (например, name@example.com): superadmin
+✔ Поставщик: администратор JWK (JWK) [пользователь: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+Пожалуйста, введите пароль для расшифровки ключа поставщика:
+Шаги в среде с несколькими администраторами
+В более крупной реальной среде администрирование будет осуществляться несколькими лицами. Присоединятся новые администраторы, другие администраторы уйдут или перейдут к другим клиентам.
 
-Important
-Super admmin privileges
-All commands, including changing a provisioners password require super admin privileges.
-Adding a new user
-At the moment the only way to manage separate accounts each with it’s own passwords is the creation of a provisioner for each account.
+Важно
+Привилегии Super admmin
+Для всех команд, включая изменение пароля провайдера, требуются права суперадминистратора.
+Добавление нового пользователя
+На данный момент единственный способ управлять отдельными учетными записями, каждая из которых имеет свои пароли, - это создание провайдера для каждой учетной записи.
 
-The default provisioner type of JWK token is ok for us, so we stick with it.
+Тип JWK-токена по умолчанию для обеспечения нас устраивает, поэтому мы придерживаемся его.
 
-Creating a new provisioner can be done by the step ca provisionier add command:
+Создание нового поставщика услуг может быть выполнено командой step ca provisionier add:
 
-[maus@vasquez:~]$ step ca provisioner add maus --type JWK --create
-Please enter a password to encrypt the provisioner private key? [leave empty and we'll generate one]:
-No admin credentials found. You must login to execute admin commands.
-✔ Please enter admin name/subject (e.g., name@example.com): superadmin
-✔ Provisioner: Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-Please enter the password to decrypt the provisioner key:
-Every new administrator must boottrap the local environment by running step ca bootstrap, e.g.:
+[maus@vasquez: ~]$ step ca provisioner добавить maus -введите JWK -создать
+Пожалуйста, введите пароль для шифрования закрытого ключа provisioner? [оставьте пустым, и мы создадим его]:
+Учетные данные администратора не найдены. Вы должны войти в систему, чтобы выполнять команды администратора.
+✔ Пожалуйста, введите имя администратора / тему (например, name@example.com): superadmin
+✔ Поставщик: администратор JWK (JWK) [пользователь: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+Пожалуйста, введите пароль для расшифровки ключа поставщика:
+Каждый новый администратор должен выполнить загрузку локальной среды, выполнив step ca bootstrap, например:
 
-[maus@vasquez:~]$ step ca bootstrap --ca-url=https://pki.internal.ypbind.de:8443 --fingerprint=b7413e0c6a0572862fcc81feddefef3bdfe76fe03c56058571c4b7d859a2924f
-The root certificate has been saved in /home/maus/.step/certs/root_ca.crt.
-The authority configuration has been saved in /home/maus/.step/config/defaults.json.
-Removing old user
-If an administrator is leaving, it’s provisioner should be remove too. Similar to the creation of a new provisioner an existing provisioner can be removed by running step ca provisioner remove <name>
+[maus@vasquez:~]$ step ca bootstrap--ca-url=https://pki.internal.ypbind.de:8443 --fingerprint=b7413e0c6a0572862fcc81feddefef3bdfe76fe03c56058571c4b7d859a2924f
+Корневой сертификат был сохранен в /home/maus/.step/certs/root_ca.crt.
+Конфигурация полномочий была сохранена в /home/maus/.step/config/defaults.json.
+Удаление старого пользователя
+Если администратор уходит, его провайдера также следует удалить. Аналогично созданию нового провайдера, существующего провайдера можно удалить, выполнив step ca provisioner remove <name>
 
-Change a (JWT) provisioners password
-To change the password of a JWT provisionert, it’s encrypted private key must be decrypted using the old passphrase and re-encrypted with the new passphrase. At first the current encrypted JWT key must be obtained:
+Измените пароль провайдера (JWT)
+Чтобы изменить пароль JWT provisionert, его зашифрованный закрытый ключ должен быть расшифрован с использованием старой ключевой фразы и повторно зашифрован новой ключевой фразой. Сначала необходимо получить текущий зашифрованный ключ JWT:
 
-maus@vasquez:~$ OLD_KEY=$(step ca provisioner list | jq -r '.[] | select(.name == "provisionername").encryptedKey')
-To generate the new encrypted key, the old key must be decrypted and re-encrypted:
+maus@vasquez:~$ OLD_KEY=$(список поставщиков step ca | jq -r '.[] | select(.name == "provisionername").EncryptedKey')
+Чтобы сгенерировать новый зашифрованный ключ, старый ключ должен быть расшифрован и повторно зашифрован:
 
-maus@vasquez:~$ NEW_KEY=$(echo $OLD_KEY | step crypto jwe decrypt | step crypto jwe encrypt -alg PBES2-HS256+A128KW | step crypto jose format)
-Please enter the password to decrypt the content encryption key:
-Please enter the password to encrypt the content encryption key:
-Finally the provisioners data can be updated to the newly generated key:
+maus@vasquez:~$ NEW_KEY=$(echo $OLD_KEY | step crypto jwe decrypt | step crypto jwe encrypt -alg PBES2-HS256 + A128KW | формат step crypto jose)
+Пожалуйста, введите пароль для расшифровки ключа шифрования содержимого:
+Пожалуйста, введите пароль для шифрования ключа шифрования содержимого:
+Наконец, данные провайдеров могут быть обновлены до вновь сгенерированного ключа:
 
-maus@vasquez:~$ step ca provisioner update forgetful_admin --private-key=<(echo -n "${NEW_KEY}")
-No admin credentials found. You must login to execute admin commands.
-✔ Please enter admin name/subject (e.g., name@example.com): superadmin
-Use the arrow keys to navigate: ↓ ↑ → ←
-What provisioner key do you want to use?
-  ▸ Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-    acme (ACME)
-    maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
-    forgetful_admin (JWK) [kid: Yx5mwRnWOzzTe8HXUE3-qY1jTs0WqRST3zYO0iufFYY]
-✔ Provisioner: Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-Please enter the password to decrypt the provisioner key:
-Warning
-Although the help text of the step crypto jwe encrypt lists the -alg option as optional if the old JWT token contains the alg field, the -alg field must always be provided when encypting the key.
-Reseting the password of a provisioner
-Important
-Reseting a provisioner password
-There is no way to reset a provisioners password! The provisioner must be deleted and newly created.
-Common tasks
-Manually creating a certificate signing request
-Using openssl
-Although it’s still possible to create a CSR using openssl req …​ command, it’s not recommended to do so. That’s because the subject alternate names must be included in the CSR it’s rather cumbersome archive because it requires the creation of an openssl configuration file for each CSR to generate..
+maus@vasquez: ~$ обновление провайдера step ca forgetful_admin --private-key=<(echo -n "${NEW_KEY}")
+Учетные данные администратора не найдены. Вы должны войти в систему, чтобы выполнять команды администратора.
+✔ Пожалуйста, введите имя администратора / тему (например, name@example.com): superadmin
+Используйте клавиши со стрелками для навигации: ↓ ↑ → ←
+Какой ключ провайдера вы хотите использовать?
+ ▸ Администратор JWK (JWK) [пользователь: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+ acme (ACME)
+ maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
+ forgetful_admin (JWK) [kid: Yx5mwRnWOzzTe8HXUE3-qY1jTs0WqRST3zYO0iufFYY]
+✔ Поставщик: администратор JWK (JWK) [пользователь: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+Пожалуйста, введите пароль для расшифровки ключа поставщика:
+Предупреждение
+Хотя в тексте справки этот параметр step crypto jwe encrypt указан -alg как необязательный, если старый токен JWT содержит это alg поле, -alg поле всегда должно быть указано при вводе ключа.
+Сброс пароля поставщика
+Важно
+Сброс пароля провайдера
+Сбросить пароль провайдера невозможно! Провайдер должен быть удален и создан заново.
+Общие задачи
+Создание запроса на подписание сертификата вручную
+Использование openssl
+Хотя по-прежнему возможно создать CSR с помощью openssl req …​ команды, делать это не рекомендуется. Это связано с тем, что альтернативные имена объектов должны быть включены в CSR, это довольно громоздкий архив, поскольку для создания каждого CSR требуется создание файла конфигурации openssl..
 
-Using step client
-The step command from the step-cli pacakge can be used to create a CSR and set the subject alternate name as specified on the command line
+Использование step client
+step Команда из step-cli pacakge может использоваться для создания CSR и задания альтернативного имени субъекта, как указано в командной строке
 
-For instance to create a CSR with three differend DNS subject alternate names and a encrypted RSA key with a length of 4096 bits with the subject '/C=DE/O=internal.ypbind.de/OU=Directory service/CN=sulaco.internal.ypbind.de':
+Например, создать CSR с тремя разными альтернативными именами субъектов DNS и зашифрованным ключом RSA длиной 4096 бит с темой '/ C = DE/ O= internal.ypbind.de/OU= Служба каталогов / CN= sulaco.internal.ypbind.de':
 
-maus@vasquez:~$ step certificate create --csr --san=sulaco.internal.ypbind.de --san=sulaco.insecure --san=sulaco.ypbind.de --kty=RSA --size=4096 '/C=DE/O=internal.ypbind.de/OU=Directory service/CN=sulaco.internal.ypbind.de' sulaco.csr sulaco.key
-Please enter the password to encrypt the private key:
-Your certificate signing request has been saved in sulaco.csr.
-Your private key has been saved in sulaco.key.
-The generated CSR file can be verfified by the openssl req command:
+maus@vasquez:~$ step создание сертификата --csr --san=sulaco.internal.ypbind.de --san= sulaco.небезопасно --san=sulaco.ypbind.de --kty=RSA --size=4096 '/C= DE/O=internal.ypbind.de/OU= Служба каталогов/CN= sulaco.internal.ypbind.de' sulaco.csr sulaco.key
+Пожалуйста, введите пароль для шифрования закрытого ключа:
+Ваш запрос на подписание сертификата сохранен в sulaco.csr.
+Ваш закрытый ключ был сохранен в sulaco.key.
+Сгенерированный CSR - файл может быть проверен командой openssl req:
 
-maus@vasquez:~$ openssl req -in sulaco.csr -noout -text
-Certificate Request:
-    Data:
-        Version: 1 (0x0)
-        Subject: CN = /C=DE/O=internal.ypbind.de/OU=Directory service/CN=sulaco.internal.ypbind.de
-        Subject Public Key Info:
-            Public Key Algorithm: rsaEncryption
-                RSA Public-Key: (4096 bit)
-                Modulus:
-                    00:b4:14:44:5a:fe:f0:3c:54:67:e1:e4:c5:e6:65:
+maus@vasquez: ~$ запрос openssl в sulaco.csr -без текста
+Запрос сертификата:
+ Данные:
+ Версия: 1 (0x0)
+ Тема: CN = /C = DE/ O=internal.ypbind.de/ OU= Служба каталогов / CN= sulaco.internal.ypbind.de
+ Тема: Информация об открытом ключе:
+ Алгоритм с открытым ключом: RSAencryption
+ Открытый ключ RSA: (4096 бит)
+ Модуль:
+ 00:b4:14:44:5a: fe: f0:3c: 54:67: e1: e4: c5: e6:65:
 ...
-                    b3:b9:01
-                Exponent: 65537 (0x10001)
-        Attributes:
-        Requested Extensions:
-            X509v3 Subject Alternative Name:
-                DNS:sulaco.internal.ypbind.de, DNS:sulaco.insecure, DNS:sulaco.ypbind.de
-    Signature Algorithm: sha256WithRSAEncryption
-         78:50:7c:a5:2f:40:a5:5f:0b:2b:41:81:97:9b:c2:85:b0:13:
+ b3:b9:01
+ Показатель: 65537 (0x10001)
+ Атрибуты:
+ Запрашиваемые расширения:
+ Альтернативное имя субъекта X509v3:
+ DNS:sulaco.internal.ypbind.de, DNS: sulaco.небезопасно, DNS:sulaco.ypbind.de
+ Алгоритм подписи: sha256WithRSAEncryption
+ 78:50:7c: a5:2f: 40:a5:5f: 0b: 2b: 41:81:97:9b: c2:85: b0:13:
 ...
-         01:c0:72:98:83:3c:a3:c9
-Tip
-To create a unencyrpted private key, use parameters --no-password --insecure
-Certificate signing
-Signing with provisioner name and password
-Certificate signing requests can be signed by the CA with authentication using a defined provisioner and it’s password, e.g.:
+ 01:c0:72:98:83:3c: a3: c9
+Совет
+Чтобы создать незашифрованный закрытый ключ, используйте параметры --no-password --insecure
+Подписание сертификата
+Подписание с использованием имени и пароля поставщика
+Запросы на подписание сертификата могут подписываться центром сертификации с аутентификацией с использованием определенного поставщика и его пароля, например:
 
 maus@vasquez:~$ step ca sign --not-after=26400h --provisioner=maus sulaco.csr sulaco.pem
-✔ Provisioner: maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
-Please enter the password to decrypt the provisioner key:
-✔ CA: https://pki.internal.ypbind.de:8443
-✔ Certificate: sulaco.pem
-Signing with a JWT token
-Signing a CSR by providing provisioner name and password is not recommended for automated use, e.g. inside a container. A more secure way, because it will never expose the provisioner password, is the use of a pre-generated JWT token.
+✔ Разработчик: maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
+Пожалуйста, введите пароль для расшифровки ключа поставщика услуг:
+✔ Центр сертификации: https://pki.internal.ypbind.de:8443
+✔ Сертификат: sulaco.pem
+Подписание с помощью токена JWT
+Подписание CSR путем указания имени и пароля поставщика не рекомендуется для автоматического использования, например, внутри контейнера. Более безопасным способом, поскольку он никогда не раскрывает пароль поставщика, является использование предварительно сгенерированного токена JWT.
 
-The token is only valid for a short time.
+Токен действителен только в течение короткого времени.
 
-For instance:
+Например:
 
-maus@vasquez:~$ TOKEN=$(step ca token --provisioner=maus --san=ripley.internal.ypbind.de --san=ripley.badphish.ypbind.de '/C=DE/O=internal.ypbind.de/OU=Directory service/CN=ripley.internal.ypbind.de')
-✔ Provisioner: maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
-Please enter the password to decrypt the provisioner key:
-maus@vasquez:~$ echo ${TOKEN}
+maus@vasquez:~$ TOKEN=$(токен step ca --provisioner=maus --san=ripley.internal.ypbind.de --san= ripley.badphish.ypbind.de '/C= DE/O=internal.ypbind.de/OU= Служба каталогов /CN= ripley.internal.ypbind.de')
+✔ Разработчик: maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
+Пожалуйста, введите пароль для расшифровки ключа поставщика: 
+maus@vasquez: ~$ echo $ {ТОКЕН}
 eyJhbGciOiJFUzI1NiIsImtpZCI6IjFWLU...
-After the token has been obtained, it can be passed to the signing command using the --token command line option:
+После получения токена его можно передать команде подписи, используя --token параметр командной строки:
 
-maus@vasquez:~$ step ca sign --not-after=26400h --token=${TOKEN} ripley.csr ripley.pem
+maus@vasquez:~$ step ca sign --not-after=26400h --token=${ТОКЕН} ripley.csr ripley.pem
 ✔ CA: https://pki.internal.ypbind.de:8443
-✔ Certificate: ripley.pem
-Caution
-The command to create the token MUST contain ALL subject alternate names and exactly as given by ths CSR geneation command If the subject alternate names are missing, incomplete or wrong the CA wil reject the signing process, e.g.:
+✔ Сертификат: ripley.pem
+Внимание
+Команда для создания токена ДОЛЖНА содержать ВСЕ альтернативные имена субъектов и точно соответствует заданным командой генерации CSR, если альтернативные имена субъектов отсутствуют, неполны или неправильны, центр сертификации отклонит процесс подписания, например:
 maus@vasquez:~$ step ca sign --not-after=26400h --token=${TOKEN_WITH_SAN_INCOMPLEE} ripley.csr ripley.pem
-✔ CA: https://pki.internal.ypbind.de:8443
-The request was forbidden by the certificate authority: certificate request does not contain the valid DNS names - got [ripley.internal.ypbind.de ripley.badphish.ypbind.de], want [/C=DE/O=internal.ypbind.de/OU=Directory service/CN=ripley.internal.ypbind.de].
-Re-run with STEPDEBUG=1 for more info.
-Certificate renewal
-Manual renewal
-To renew a certificate the private and the public part of the certificate is required. To replace the current public key file of the certificate - instead of creation of a new file (requires --out option) - the --force option can be used for the step ca renew command.
+✔ Центр сертификации: https://pki.internal.ypbind.de:8443
+Запрос был запрещен центром сертификации: запрос сертификата не содержит допустимых DNS-имен - получено [ripley.internal.ypbind.de ripley.badphish.ypbind.de], требуется [/C= DE/O=internal.ypbind.de/OU= Служба каталогов /CN=ripley.internal.ypbind.de].
+Повторно запустите с помощью STEPDEBUG = 1 для получения дополнительной информации.
+Продление сертификата
+Обновление вручную
+Для продления сертификата требуются частная и общедоступная части сертификата. Для замены текущего файла открытого ключа сертификата - вместо создания нового файла (требуется --out опция) - для --force команды можно использовать step ca renew опцию.
 
-root@vasquez:~# step ca renew  --force /etc/dovecot/ssl/imap_imap.internal.ypbind.de.pem /etc/dovecot/ssl/imap_imap.internal.ypbind.de.key
-Your certificate has been saved in /etc/dovecot/ssl/imap_imap.internal.ypbind.de.pem.
-For encrypted private keys, the password must be stored in a file (make sure to restrict the access!) and pass it using the --password-file option.
+root@vasquez:~# step ca обновить --принудительно /etc/dovecot/ssl/imap_imap.internal.ypbind.de.pem /etc/dovecot/ssl/imap_imap.internal.ypbind.de.key
+Ваш сертификат сохранен в /etc/dovecot/ssl/imap_imap.internal.ypbind.de.pem.
+Для зашифрованных закрытых ключей пароль необходимо сохранить в файле (обязательно ограничьте доступ!) и передать его с помощью опции --password-file.
 
-The private key of the certificate is used to authenticate against the Step-CA service for renewal.
+Закрытый ключ сертификата используется для аутентификации в службе Step-CA для продления.
 
-Important
-It’s not possible to renew a expired certificate:
-maus@vasquez:~$ step ca renew  --force /etc/postfix/ssl/new_smtp_ypbind.de.pem /etc/postfix/ssl/new_smtp_ypbind.de.key
-error renewing certificate: The request lacked necessary authorization to be completed: certificate expired on 2022-09-20 12:30:07 +0000 UTC
-To specify a expiration period of the new certificate add the --expires-in option, otherwise the default setting of .authority.claims.defaultTLSCertDuration from the config/ca.json file will be used.
+Важно
+Невозможно обновить сертификат с истекшим сроком действия:
+maus@vasquez:~$ step ca renew --force /etc/postfix/ssl/new_smtp_ypbind.de.pem /etc/postfix/ssl/new_smtp_ypbind.de.key 
+ошибка при обновлении сертификата: в запросе не хватало необходимой авторизации для завершения: срок действия сертификата истек 2022-09-20 12:30:07 +0000 UTC
+Чтобы указать срок действия нового сертификата, добавьте --expires-in опцию, в противном случае будет использоваться настройка по умолчанию для .authority.claims.defaultTLSCertDuration из config/ca.json файла.
 
-Automatic renewal
-Step-CA client can run as a daemon to renew certificates using the public and private key if two thirds of the certificate expiration has passed. This can be accomplished by passing the --daemon option. If the certificate has been renewed either the signal and PID file (--signal / --pid-file) can be passed to send the PID the defined signal or a command - given by the --exec option - can be defined to run a command.
+Автоматическое продление
+Клиент Step-CA может запускаться как демон для обновления сертификатов с использованием открытого и закрытого ключей, если прошло две трети срока действия сертификата. Этого можно добиться, передав опцию --daemon. Если сертификат был обновлен, можно передать либо файл signal и PID (--signal / --pid-file) для отправки PID определенного сигнала, либо команду, заданную --exec опцией, можно определить для запуска команды.
 
-Certificate revocation
-Certificates for compromised services or services / systems no longer in use can and should be revoked before their expiration.
+Отзыв сертификата
+Сертификаты для скомпрометированных служб или сервисов / систем, которые больше не используются, могут и должны быть отозваны до истечения срока их действия.
 
-Two types of revocation exists.
+Существует два типа отзыва.
 
-Active revocation means client will check for revoked certificates by fetching a CRL file or query an OCSP responder.
+Активная отмена означает, что клиент будет проверять наличие отозванных сертификатов, извлекая CRL-файл или запрашивая OCSP-ответчик.
 
-Passive revocation means client will not check for revoked certificates. Certificates are only marked as revoked by the CA.
+Пассивное аннулирование означает, что клиент не будет проверять наличие отозванных сертификатов. Сертификаты помечаются как отозванные только центром сертификации.
 
-Note
-At the momen Step CA only supports passive revocation.
-Certificates can be revoked by:
-it’s serial number (e.g. fetched by running openssl x509 -in <cert> -noout -text -serial) - step ca revoke serial_mumber
+Примечание
+На данный момент Step CA поддерживает только пассивный отзыв.
+Сертификаты могут быть отозваны:
+его серийный номер (например, полученный при запуске openssl x509 -in <cert> -noout -text -serial) - step ca revoke serial_mumber
 
-it’s public/private key pair - step ca revoke --cert=/path/to/pulic.pem --key=/path/to/private.key
+это пара открытого / закрытого ключей - step ca revoke --cert=/path/to/pulic.pem --key=/path/to/private.key
 
-Tip
-Although a revocation reason (--reason="Lore ipsum…​") is optional it should always be used to impreove the transprarency of certificate revocation
-Important
-If the private key is encrypted, it’s passphrase must be entered to decrypt the key.
-Important
-Certificates can’t be revoked by their serial number if you use an OIDC provisioner.
-Revoke a certificate using a provisioner
-By default certificates are revoked using a provisioner for authentication:
+Совет
+Хотя причина отзыва (--reason="Lore ipsum…​") необязательна, ее всегда следует использовать для обеспечения прозрачности отзыва сертификата
+Важно
+Если закрытый ключ зашифрован, необходимо ввести его кодовую фразу для расшифровки ключа.
+Важно
+Сертификаты не могут быть отозваны по их серийному номеру, если вы используете поставщика OIDC.
+Отзыв сертификата с помощью поставщика
+По умолчанию сертификаты отзываются с использованием поставщика для аутентификации:
 
-maus@vasquez:~$ openssl x509 -in ssl/ripley.pem -noout -serial
-serial=7CCDFDB5E70F0993029A6110603B05F4
-maus@vasquez:~$ maus@vasquez:~$ step ca revoke --reason="Service has been remove and is no longer in use" 0x7CCDFDB5E70F0993029A6110603B05F4
-Use the arrow keys to navigate: ↓ ↑ → ←
-What provisioner key do you want to use?
-    Admin JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
-    acme (ACME)
-  ▸ maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
-Please enter the password to decrypt the provisioner key:
-✔ CA: https://pki.internal.ypbind.de:8443
-Revoke a certificate using a JWT token
-For automation, revocation should be done by generating a JWT revokation token and revoke the certificate by authentication using the JWT token.
+maus@vasquez: ~$ openssl x509 -в ssl /ripley.pem -nout -serial 
+serial=7CCDFDB5E70F0993029A6110603B05F4 
+maus@vasquez:~$ maus@vasquez: ~$ step ca revoke --reason="Служба удалена и больше не используется" 0x7CCDFDB5E70F0993029A6110603B05F4
+Используйте клавиши со стрелками для навигации: ↓ ↑ → ←
+Какой ключ провайдера вы хотите использовать?
+ Администратор JWK (JWK) [kid: mj4o6pbvivgPKyK2GGFVRTmoH3fJb6nTOBoTAoshvfU]
+ acme (ACME)
+ ▸ maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
+Пожалуйста, введите пароль для расшифровки ключа провайдера:
+✔ Центр сертификации: https://pki.internal.ypbind.de:8443
+Отзыв сертификата с использованием токена JWT
+Для автоматизации отзыв следует производить путем генерации токена отзыва JWT и отзыва сертификата путем аутентификации с использованием токена JWT.
 
-A revocation token can be obtained by using the --revoke option of the step ca token command.
+Токен отзыва может быть получен с помощью --revoke опции step ca token команды.
 
 maus@vasquez:~$ TOKEN=$(step ca token --issuer=maus --revoke 0x0B5A836AF402C27EBD7B4653EC422804)
-✔ Provisioner: maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
-Please enter the password to decrypt the provisioner key:
-maus@vasquez:~$ step ca revoke --reason="HTTP service has been migrated to the new server" --token=${TOKEN} 0x0B5A836AF402C27EBD7B4653EC422804
-✔ CA: https://pki.internal.ypbind.de:8443
-Certificate with Serial Number 0x0B5A836AF402C27EBD7B4653EC422804 has been revoked.
-Note
-A revocation token can only be used for certificate revocation.
-Using ACME for automatic certificate deployment
-Automatic certificate installation and renewal can be done by using the ACME protocol. Using ACME for certicate issuing, installation and renewal is easy with Step CA.
+✔ Разработчик: maus (JWK) [kid: 1V-DdUBRAM4-cJnHU47P-tKGDR7wTgvAodzruKrj1Pk]
+Пожалуйста, введите пароль для расшифровки ключа поставщика: 
+maus@vasquez:~$ step ca отзывает --причина="Служба HTTP перенесена на новый сервер" --токен=${TOKEN} 0x0B5A836AF402C27EBD7B4653EC422804
+✔ Центр сертификации: https://pki.internal.ypbind.de:8443
+Сертификат с серийным номером 0x0B5A836AF402C27EBD7B4653EC422804 отозван.
+Примечание
+Токен отзыва может использоваться только для отзыва сертификата.
+Использование ACME для автоматического развертывания сертификатов
+Автоматическая установка и продление сертификата могут быть выполнены с помощью протокола ACME. Использование ACME для выдачи сертификатов, установка и продление с помощью Step CA просты.
 
-Add and configure an acme provisioner and point the ACME tool to the URL at https://<step_ca_url>/acme/<name_of_the_acme_provisioner>/directory.
+Добавьте и настройте acme провайдера и укажите инструменту ACME URL по адресу https://<step_ca_url>/acme/<name_of_the_acme_provisioner>/directory.
 
-For instance for the https://github.com/acmesh-official/acme.sh(acme.sh) tool in this setup use acme.sh --server https://pki.internal.ypbind.de:8443/acme/acme/directory …​
+Например, для https://github.com/acmesh-official/acme.sh (acme.sh) инструмента в этой настройке используйте acme.sh --server https://pki.internal.ypbind.de:8443/acme/acme/directory …​
 
-For example a web service - rss.ypbind.de - with the following configuration for the http-01 ACME challenge
+Например, веб-сервис - rss.ypbind.de - со следующей конфигурацией для http-01 ACME challenge
 
-Alias /.well-known/acme-challenge "/var/www/rss.ypbind.de/letsencrypt/.well-known/acme-challenge"
-<Directory "/var/www/rss.ypbind.de/letsencrypt/.well-known">
-    AllowOverride   None
-    Require all granted
+Псевдоним /.well-known/acme-challenge "/var/www/rss.ypbind.de/letsencrypt/.well-known/acme-challenge"
+<Каталог "/var/www/rss.ypbind.de/letsencrypt/.well-known">
+ Разрешить переопределение нет
+ Требовать, чтобы все было предоставлено
 </Directory>
-can be installed by running:
+можно установить, выполнив:
 
-root@vasquez:~# acme.sh --issue --domain rss.ypbind.de --server https://pki.internal.ypbind.de:8443/acme/acme/directory --ca-bundle /etc/step-ca/certs/root_ca.crt --fullchain-file /etc/apache2/ssl/rss.ypbind.de.pem --key-file /etc/apache2/ssl/rss.ypbind.de.key --reloadcmd "service apache2 force-reload" --webroot /var/www/rss.ypbind.de/letsencrypt/
-[Mon 12 Dec 2022 05:48:29 PM CET] Using CA: https://pki.internal.ypbind.de:8443/acme/acme/directory
-[Mon 12 Dec 2022 05:48:29 PM CET] Single domain='rss.ypbind.de'
-[Mon 12 Dec 2022 05:48:29 PM CET] Getting domain auth token for each domain
-[Mon 12 Dec 2022 05:48:29 PM CET] Getting webroot for domain='rss.ypbind.de'
-[Mon 12 Dec 2022 05:48:29 PM CET] Verifying: rss.ypbind.de
-[Mon 12 Dec 2022 05:48:30 PM CET] Success
-[Mon 12 Dec 2022 05:48:30 PM CET] Verify finished, start to sign.
-[Mon 12 Dec 2022 05:48:30 PM CET] Lets finalize the order.
-[Mon 12 Dec 2022 05:48:30 PM CET] Le_OrderFinalize='https://pki.internal.ypbind.de:8443/acme/acme/order/498GyYsv9EnNHqnGnasARdx12WyG32d7/finalize'
-[Mon 12 Dec 2022 05:48:30 PM CET] Downloading cert.
-[Mon 12 Dec 2022 05:48:30 PM CET] Le_LinkCert='https://pki.internal.ypbind.de:8443/acme/acme/certificate/2cW0M6iT6HqS9eupGVAltFR1SAo0QZMu'
-[Mon 12 Dec 2022 05:48:30 PM CET] Cert success.
------BEGIN CERTIFICATE-----
-MIIDDDCCArGgAwIBAgIQPb74n+U+mNE3tDwKv2iRTjAKBggqhkjOPQQDAjB+MTUw
+root@vasquez: ~# acme.sh --проблема --домен rss.ypbind.de --сервер https://pki.internal.ypbind.de:8443/acme/acme/directory --ca-bundle /etc/step-ca/certs/root_ca.crt --файл полной цепочки /etc/apache2/ssl/rss.ypbind.de.pem --файл ключа /etc/apache2/ssl/rss.ypbind.de.key --reloadcmd "принудительная перезагрузка сервиса apache2" --webroot /var/www/rss.ypbind.de/letsencrypt/
+[Пн. 12 дек. 2022 г. 05:48:29 CET] Использование центра сертификации: https://pki.internal.ypbind.de:8443/acme/acme/directory
+[Пн. 12 дек. 2022 г. 05:48:29 CET] Единый домен = 'rss.ypbind.de '
+[Пн. 12 дек. 2022 г. 05:48:29 CET] Получение токена авторизации домена для каждого домена
+[Пн. 12 дек. 2022 г. 05:48:29 CET] Получение webroot для домена = 'rss.ypbind.de'
+[Пн. 12 дек. 2022 г. 05:48:29 CET] Проверка: rss.ypbind.de
+[Пн. 12 дек. 2022 г. 05:48:30 CET] Успех
+[Пн. 12 дек. 2022 г., 05:48:30 CET] Подтвердите завершение, начинайте подписывать.
+[Пн. 12 дек. 2022 г., 05:48:30 CET] Давайте завершим оформление заказа.
+[Пн. 12 дек. 2022 г. 05:48:30 CET] Le_OrderFinalize='https://pki.internal.ypbind.de:8443/acme/acme/order/498GyYsv9EnNHqnGnasARdx12WyG32d7/finalize'
+[Пн. 12 дек. 2022 г. 05:48:30 CET] Загрузка сертификата.
+[Пн, 12 дек. 2022 г., 05:48:30 CET] Le_LinkCert='https://pki.internal.ypbind.de:8443/acme/acme/certificate/2cW0M6iT6HqS9eupGVAltFR1SAo0QZMu'
+[Пн, 12 дек. 2022 г., 05:48:30 CET] Сертификат прошел успешно.
+-----НАЧАТЬ ВЫДАЧУ СЕРТИФИКАТА-----
+MIIDDDCCArGgAwIBAgIQPb74n+U + mNE3tDwKv2iRTjAKBggqhkjOPQQDAjB+MTUw
 MwYDVQQKEyxDZXJ0aWZpY2F0ZSBhdXRob3JpdHkgZm9yIGludGVybmFsLnlwYmlu
 ZC5kZTFFMEMGA1UEAxM8Q2VydGlmaWNhdGUgYXV0aG9yaXR5IGZvciBpbnRlcm5h
 bC55cGJpbmQuZGUgSW50ZXJtZWRpYXRlIENBMB4XDTIyMTIxMjE2NDcyOVoXDTIz
-MDExMTE2NDgyOVowGDEWMBQGA1UEAxMNcnNzLnlwYmluZC5kZTCCASIwDQYJKoZI
+MDExMTE2NDgyOVowGDEWMBQGA1UEAxMNcnNzLnlwYmluZC5kZTCCASIwDQYJKoZI 
 hvcNAQEBBQADggEPADCCAQoCggEBALl7uZ5IZojjqBRMauGG/dYgo/q3a5XqxBwe
 qlfaiVNSHYXhsM0K4KOwQIJrcQTdii5XmL/YHpV8UCeN7YIMGvYzrzII9lsiCEkd
-y/NHvlN4rZ2Q4zgcFshW8rK436x2LS2yNlF8orIiU1FIYYmzWg+AK1nfnoPoOR6Z
-mw+1GUBqFMD+kJdxyHlM3KpGSPSfCfm3Sl0SSW5hv7KPxGS1cAwq6xM+CY8T7VR7
+y/NHvlN4rZ2Q4zgcFshW8rK436x2LS2yNlF8orIiU1FIYYmzWg+AK1nfnoPoOR6Z 
+mw + 1GUBqFMD+ kJdxyHlM3KpGSPSfCfm3Sl0SSW5hv7KPxGS1cAwq6xM+ CY8T7VR7
 AHLcuXaWAre7lglNhpvmLrKhdnHTQJfmIQdPPeNceISMFif+y2HAreTyTNKjywWe
 Ysr4KNVZUao2a2PWq/y5lTNMr5ymEjfQSwdhI4a3A6Q0iBmdSp0CAwEAAaOBqzCB
 qDAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMC
 MB0GA1UdDgQWBBQ9WzU+r0YkaPhntTzBz12U2GBw0DAfBgNVHSMEGDAWgBQ9wBiD
 qsyN5DOnBYsfywAYVcEKvDAYBgNVHREEETAPgg1yc3MueXBiaW5kLmRlMB0GDCsG
 AQQBgqRkxihAAQQNMAsCAQYEBGFjbWUEADAKBggqhkjOPQQDAgNJADBGAiEAyY5h
-gUJa13wCHqONKUoXTSFHhEoxBdEirOM7adboBqYCIQDo3STBKU910lUQjMLHo8RR
+gUJa13wCHqONKUoXTSFHhEoxBdEirOM7adboBqYCIQDo3STBKU910lUQjMLHo8RR 
 n/4AcTOQqbn1bsFSF6xgEg==
------END CERTIFICATE-----
-[Mon 12 Dec 2022 05:48:30 PM CET] Your cert is in: /etc/acme.sh/rss.ypbind.de/rss.ypbind.de.cer
-[Mon 12 Dec 2022 05:48:30 PM CET] Your cert key is in: /etc/acme.sh/rss.ypbind.de/rss.ypbind.de.key
-[Mon 12 Dec 2022 05:48:30 PM CET] The intermediate CA cert is in: /etc/acme.sh/rss.ypbind.de/ca.cer
-[Mon 12 Dec 2022 05:48:30 PM CET] And the full chain certs is there: /etc/acme.sh/rss.ypbind.de/fullchain.cer
-[Mon 12 Dec 2022 05:48:30 PM CET] Installing key to: /etc/apache2/ssl/rss.ypbind.de.key
-[Mon 12 Dec 2022 05:48:30 PM CET] Installing full chain to: /etc/apache2/ssl/rss.ypbind.de.pem
-[Mon 12 Dec 2022 05:48:30 PM CET] Run reload cmd: service apache2 force-reload
-[Mon 12 Dec 2022 05:48:31 PM CET] Reload success
-Note
-We don’t use the --apache flag for acme.sh because it messes up /etc/apache2/apache2.conf by adding /home/.acme as path. In this case /home is an automount path for user homes from central storage servers.
-The cronjob /etc/cron.d/acme-sh of the Debian/Ubuntu package for acme.sh will renew the certificate if neccessary and will restart the service if the --reloadcmd was provided.
-
+----КОНЕЧНЫЙ СЕРТИФИКАТ-----
+[Пн, 12 Дек. 2022, 05:48:30 по центральноевропейскому времени] Ваш сертификат находится в /etc/acme.sh/rss.ypbind.de/rss.ypbind.de.cer
+[Пн, 12 Дек. 2022, 05:48:30 по центральноевропейскому времени] Ваш ключ сертификата находится в /etc/acme.sh/rss.ypbind.de/rss.ypbind.de.key
+[Пн, 12 Дек. 2022, 05:48:30 по центральноевропейскому времени] Сертификат промежуточного центра сертификации находится в /etc/acme.sh/rss.ypbind.de/ca.cer
+[Пн, 12 Дек. 2022, 05:48:30 по центральноевропейскому времени] И сертификаты полной цепочки есть: /etc/acme.sh/rss.ypbind.de/fullchain.cer
+[Пн, 12 Дек. 2022, 05:48:30 по центральноевропейскому времени] Установка ключа в: /etc/apache2/ ssl/ rss.ypbind.de.key
+[Пн, 12 Дек. 2022, 05:48:30 по центральноевропейскому времени] Установка полной цепочки в: /etc/ apache2/ ssl/ rss.ypbind.de.pem
+[Пн. 12 дек. 2022 г. в 05:48:30 по центральноевропейскому времени] Запустите reload cmd: service apache2 force-reload
+[Пн. 12 дек. 2022 г. в 05:48:31 по центральноевропейскому времени] Перезагрузка прошла успешно
+Примечание
+Мы не используем --apache флаг для acme.sh, потому что это приводит к путанице /etc/apache2/apache2.conf при добавлении /home/.acme в качестве пути. В данном случае /home это путь автоматического монтирования для домов пользователей с серверов центрального хранилища.
+cronjob /etc/cron.d/acme-sh пакета Debian / Ubuntu для acme.sh обновит сертификат, если это необходимо, и перезапустит службу, если --reloadcmd был предоставлен.
