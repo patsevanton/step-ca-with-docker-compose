@@ -8,30 +8,31 @@
 Чтобы инициализировать центр сертификации, выполните команду `step ca init …​`. Переменная среды `STEPPATH` может быть настроена так, чтобы указывать каталог центра сертификации, в противном случае используется текущий каталог:
 
 ```
-root@vasquez:~# export STEPPATH=/etc/step-ca 
-root@vasquez: ~# step ca init --dns=pki.internal.ypbind.de --dns=pki.ypbind.de --адрес='[::]:8443' --address=0.0.0.0:8443 --name="Центр сертификации для internal.ypbind.de" --deployment-type=standalone --provisioner="root@internal.ypbind.de" --password-file=/etc/step/initial_pass
+root@vasquez:~# export STEPPATH=/etc/step-ca
+root@vasquez:~# step ca init --dns=pki.internal.ypbind.de --dns=pki.ypbind.de --address='[::]:8443'  --address=0.0.0.0:8443  --name="Certificate authority for internal.ypbind.de" --deployment-type=standalone --provisioner="root@internal.ypbind.de" --password-file=/etc/step/initial_pass
 
-Создание корневого сертификата ... готово!
-Создание промежуточного сертификата ... готово!
+Generating root certificate... done!
+Generating intermediate certificate... done!
 
-✔ Корневой сертификат: /etc/step/certs/root_ca.crt
-✔ Закрытый ключ Root: /etc/step/secrets/root_ca_key
-✔ Отпечаток Root: b7413e0c6a0572862fcc81feddefef3bdfe76fe03c56058571c4b7d859a2924f
-✔ Промежуточный сертификат: /etc/step/сертификаты/intermediate_ca.crt
-✔ Промежуточный закрытый ключ: /etc/step/секреты/intermediate_ca_key
-✔ Папка базы данных: /etc/step/db
-✔ Конфигурация по умолчанию: /etc/step/config/defaults.json
-✔ Конфигурация центра сертификации: /etc/step/config/ca.json
+✔ Root certificate: /etc/step/certs/root_ca.crt
+✔ Root private key: /etc/step/secrets/root_ca_key
+✔ Root fingerprint: b7413e0c6a0572862fcc81feddefef3bdfe76fe03c56058571c4b7d859a2924f
+✔ Intermediate certificate: /etc/step/certs/intermediate_ca.crt
+✔ Intermediate private key: /etc/step/secrets/intermediate_ca_key
+✔ Database folder: /etc/step/db
+✔ Default configuration: /etc/step/config/defaults.json
+✔ Certificate Authority configuration: /etc/step/config/ca.json
+
+Your PKI is ready to go. To generate certificates for individual services see 'step help ca'.
+
+FEEDBACK 😍 🍻
+  The step utility is not instrumented for usage statistics. It does not phone
+  home. But your feedback is extremely valuable. Any information you can provide
+  regarding how you’re using `step` helps. Please send us a sentence or two,
+  good or bad at feedback@smallstep.com or join GitHub Discussions
+  https://github.com/smallstep/certificates/discussions and our Discord
+  https://u.step.sm/discord.
 ```
-Ваш PKI готов к работе. Чтобы сгенерировать сертификаты для отдельных служб, см. раздел "Справка step ca".
-
-ОБРАТНАЯ СВЯЗЬ 😍 🍻
- Утилита step не предназначена для статистики использования. Она не звонит по телефону 
- домой. Но ваш отзыв чрезвычайно ценен. Любая информация, которую вы можете предоставить
- помогает информация о том, как вы используете "step". Пожалуйста, отправьте нам одно-два предложения, 
- хорошее или плохое на feedback@smallstep.com или присоединяйтесь к обсуждениям на GitHub 
- https: //github.com/smallstep/certificates/discussions и к нашему Discord 
- https: //u.step.sm/discord.
 Обратите внимание на отпечаток root, он требуется начальной загрузкой для каждого пользователя. Его также можно получить из выходных данных при запуске step-ca службы.
 
 Используйте PostgreSQL в качестве серверной части базы данных
