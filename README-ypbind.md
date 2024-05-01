@@ -37,7 +37,7 @@ FEEDBACK 😍 🍻
 Take a note of the root fingerprint, it is required by the bootstrap for every user. It can also be obtained from the output at the start of the step-ca service.
 
 # Use PostgreSQL as database backend
-The default database type is BoltDB. The downside of BoltDB is the access is limited to a single process, in this case the step-ca service. In a productive environment multiple processess will access the database at the same time, e.g. to crate CRL, export statistics to Prometheus, …
+The default database type is [BoltDB](https://dbdb.io/db/boltdb). The downside of BoltDB is the access is limited to a single process, in this case the step-ca service. In a productive environment multiple processess will access the database at the same time, e.g. to crate CRL, export statistics to Prometheus, …
 
 The database bacekend can be changed easily. It doesn’t matter if PostgreSQL or MySQL/MariaDB is used. The only difference is the database configuration and the configuration section in the Step-CA configuration.
 
