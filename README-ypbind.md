@@ -1,11 +1,12 @@
-Step-CA is sophisticated open source (Apache License 2.0) CA system with support for the ACME protocol.
+[Step-CA](https://smallstep.com/docs/step-ca) is sophisticated open source (Apache License 2.0) CA system with support for the ACME protocol.
 
-Initialisation
-After the installation of the required packages (step-ca for the CA itself and step-cli for the client program), the CA itself can be initialised. For the initialisation, the DNS names, the CA name (will be part of the certificate subject of the Root CA and ther intermediate CA certificate), the deployment type and IP and port for the CA service to listen are required.
+# Initialisation
+After the installation of the required packages (`step-ca` for the CA itself and `step-cli` for the client program), the CA itself can be initialised. For the initialisation, the DNS names, the CA name (will be part of the certificate subject of the Root CA and ther intermediate CA certificate), the deployment type and IP and port for the CA service to listen are required.
 
-Important
-The deployment type and the CA name can not be changed afterwards!
-To initialise the CA, run step ca init …​. The environment variable STEPPATH can be set to specify the directory of the CA, otherwise the current directory is used:
+### Important
+`The deployment type and the CA name can not be changed afterwards!`
+To initialise the CA, run `step ca init …​`. The environment variable `STEPPATH` can be set to specify the directory of the CA, otherwise the current directory is used:
+```
 
 root@vasquez:~# export STEPPATH=/etc/step-ca
 root@vasquez:~# step ca init --dns=pki.internal.ypbind.de --dns=pki.ypbind.de --address='[::]:8443'  --address=0.0.0.0:8443  --name="Certificate authority for internal.ypbind.de" --deployment-type=standalone --provisioner="root@internal.ypbind.de" --password-file=/etc/step/initial_pass
@@ -31,9 +32,10 @@ FEEDBACK 😍 🍻
   good or bad at feedback@smallstep.com or join GitHub Discussions
   https://github.com/smallstep/certificates/discussions and our Discord
   https://u.step.sm/discord.
+```
 Take a note of the root fingerprint, it is required by the bootstrap for every user. It can also be obtained from the output at the start of the step-ca service.
 
-Use PostgreSQL as database backend
+# Use PostgreSQL as database backend
 The default database type is BoltDB. The downside of BoltDB is the access is limited to a single process, in this case the step-ca service. In a productive environment multiple processess will access the database at the same time, e.g. to crate CRL, export statistics to Prometheus, …
 
 The database bacekend can be changed easily. It doesn’t matter if PostgreSQL or MySQL/MariaDB is used. The only difference is the database configuration and the configuration section in the Step-CA configuration.
