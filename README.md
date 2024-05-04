@@ -324,7 +324,7 @@ CSR FreeIPA сохранится по пути /etc/docker-compose/freeipa-data/
 openssl req -text -noout -verify -in /etc/docker-compose/freeipa-data/ipa.csr
 ```
 
-Копируем /etc/docker-compose/freeipa-data/ipa.csr c FreeIPA сервера в /etc/step-ca/ipa.csr на step-ca сервер
+Копируем `/etc/docker-compose/freeipa-data/ipa.csr` c FreeIPA сервера в `/etc/step-ca/ipa.csr` на step-ca сервер
 
 Прописываем `ca.mydomain.int` либо в DNS либо в /etc/hosts
 ```shell
