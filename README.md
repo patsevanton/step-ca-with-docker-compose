@@ -309,7 +309,7 @@ services:
     - /tmp
 ```
 
-Запустим FreeIPA и посмотрим вывод
+Запустим docker compose и ждем когда FreeIPA создаст ipa.csr и завершится
 ```shell
 cd /etc/docker-compose/
 docker compose up
