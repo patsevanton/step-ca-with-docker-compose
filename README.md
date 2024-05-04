@@ -98,9 +98,19 @@ sudo mv $(step path)/* /etc/step-ca
 certs  config  db  secrets  templates
 ```
 
-Сохраните пароль PKI в `/etc/step-ca/password.txt`, чтобы его можно было прочитать при запуске сервера. Обратите внимание, что вам придется редактировать эти файлы от имени root, поэтому убедитесь, что вы указали sudo vi или sudo nano для редактирования этих файлов. В идеале этот ключ должен храниться в TPM2, YubiKey или другой защищенной системе. Однако это выходит за рамки данного руководства.
+
+Сохраните пароль PKI в `/etc/step-ca/password.txt`, чтобы его можно было прочитать при запуске сервера. 
+```shell
+sudo nano /etc/step-ca/password.txt
+```
+
+Обратите внимание, что вам придется редактировать эти файлы от имени root, поэтому убедитесь, что вы указали sudo vi или sudo nano для редактирования этих файлов. В идеале этот ключ должен храниться в TPM2, YubiKey или другой защищенной системе. Однако это выходит за рамки данного руководства.
 
 Теперь отредактируйте файл `/etc/step-ca/config/defaults.json` и `/etc/step-ca/config/ca.json`, чтобы отразить новый путь. В моем случае мне пришлось изменить различные ключи в конфигурации с `/home/ubuntu/.step` на `/etc/step-ca`, что лучше всего работает с использованием функций поиска и замены в вашем редакторе.
+```shell
+sudo nano /etc/step-ca/config/defaults.json
+sudo nano /etc/step-ca/config/ca.json
+```
 
 Установите пользователя step владельцем каталога конфигурации вашего CA:
 
@@ -214,7 +224,7 @@ sudo step certificate fingerprint $(step path)/certs/root_ca.crt
 
 Устанавливаем docker
 ```shell
-sudo apt install docker.io docker-compose-v2 
+sudo apt install docker.io docker-compose-v2 mc
 ```
 
 Добавляем текущего юзера в группу docker
