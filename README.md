@@ -300,6 +300,7 @@ services:
 
 Запустим FreeIPA и посмотрим вывод
 ```shell
+cd /etc/docker-compose/
 docker compose up
 ```
 
