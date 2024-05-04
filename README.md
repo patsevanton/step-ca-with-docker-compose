@@ -336,9 +336,9 @@ sudo nano /etc/hosts
 sudo step certificate sign --profile intermediate-ca /etc/step-ca/ipa.csr /etc/step-ca/certs/root_ca.crt /etc/step-ca/secrets/root_ca_key | sudo tee -a /etc/step-ca/ipa.crt
 ```
 
-Просмотр CRT
+Просмотр crt
 ```shell
-openssl x509 -noout -text -in /etc/docker-compose/freeipa-certificate/ipa.crt
+openssl x509 -noout -text -in /etc/step-ca/ipa.crt
 ```
 
 Копируем root CA  сертификат в FreeIPA:
