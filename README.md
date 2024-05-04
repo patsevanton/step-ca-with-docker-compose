@@ -341,10 +341,9 @@ sudo step certificate sign --profile intermediate-ca /etc/step-ca/ipa.csr /etc/s
 openssl x509 -noout -text -in /etc/step-ca/ipa.crt
 ```
 
-Копируем root CA  сертификат в FreeIPA:
-```shell
-sudo cp /etc/step-ca/certs/root_ca.crt /etc/docker-compose/ca/root_ca.crt
-```
+Копируем `/etc/step-ca/certs/root_ca.crt` c step-ca сервера в `/etc/docker-compose/ca/root_ca.crt` на сервер FreeIPA
+
+Копируем `/etc/step-ca/ipa.crt` c step-ca сервера в `/etc/docker-compose/freeipa-certificate/ipa.crt` на FreeIPA сервер
 
 Обновляем /etc/docker-compose/docker-compose.yaml
 ```yaml
@@ -402,7 +401,31 @@ services:
     - /tmp
 ```
 
-Запускаем FreeIPA:
+Запускаем FreeIPA. Смотрим ошибки.
+```shell
+docker compose up
+```
+FreeIPA конфигурируется минут 10. Если ошибок нет. Добавляем docker compose в systemd unit.
+```shell
+sudo nano /etc/systemd/system/freeipa.service
+```
+Содержимое
+```shell
+[Unit]
+Description=%i service with docker compose
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/etc/docker-compose/%i
+ExecStart=/usr/local/bin/docker compose up -d --remove-orphans
+ExecStop=/usr/local/bin/docker compose down
+
+[Install]
+WantedBy=multi-user.target
+```
 
 
 Вывод
