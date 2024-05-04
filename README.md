@@ -240,6 +240,10 @@ sudo chown -R ubuntu:ubuntu /etc/docker-compose
 ```
 
 Запускаем FreeIPA для генерации CSR в /etc/docker-compose/docker-compose.yaml
+```shell
+sudo nano /etc/docker-compose/docker-compose.yaml
+```
+
 ```yaml
 version: "3.8"
 
