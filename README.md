@@ -276,9 +276,8 @@ services:
       - --ds-password=youpassword
       - --external-ca
       - --http-pin=youpassword
-      - --realm=FREEIPA.MYDOMAIN.INT
+      - --realm=MYDOMAIN.INT
       - --unattended
-      - -v
     cap_add:
       - SYS_TIME
       - NET_ADMIN
@@ -324,7 +323,7 @@ sudo step certificate sign --profile intermediate-ca /etc/docker-compose/freeipa
 
 Просмотр CRT
 ```shell
-openssl x509 -noout -text -in /etc/docker-compose/freeipa-data/ipa.crt
+openssl x509 -noout -text -in /etc/docker-compose/freeipa-certificate/ipa.crt
 ```
 
 Копируем root CA  сертификат в FreeIPA:
@@ -366,7 +365,7 @@ services:
       - --external-cert-file=/freeipa-certificate/ipa.crt
       - --external-cert-file=/ca/root_ca.crt
       - --http-pin=youpassword
-      - --realm=FREEIPA.MYDOMAIN.INT
+      - --realm=MYDOMAIN.INT
       - --unattended
       - -v
     cap_add:
