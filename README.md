@@ -278,6 +278,7 @@ services:
       - --http-pin=youpassword
       - --realm=FREEIPA.MYDOMAIN.INT
       - --unattended
+      - -v
     cap_add:
       - SYS_TIME
       - NET_ADMIN
