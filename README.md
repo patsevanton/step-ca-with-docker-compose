@@ -430,8 +430,8 @@ WantedBy=multi-user.target
 Запускаем FreeIPA через systemd
 ```shell
 sudo systemctl daemon-reload
-sudo systemctl enable --now step-ca
-sudo systemctl status step-ca
+sudo systemctl enable --now freeipa
+sudo systemctl status freeipa
 ```
 
 # Заключение
