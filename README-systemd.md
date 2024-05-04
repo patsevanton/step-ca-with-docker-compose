@@ -98,9 +98,9 @@ sudo mv $(step path)/* /etc/step-ca
 certs  config  db  secrets  templates
 ```
 
-Введите свой пароль PKI в _/etc/step-ca/password.txt_, чтобы его можно было прочитать при запуске сервера. Обратите внимание, что вам придется редактировать эти файлы от имени root, поэтому убедитесь, что вы указали sudo vi или sudo nano для редактирования этих файлов. В идеале этот ключ должен храниться в TPM2, YubiKey или другой защищенной системе. Однако это выходит за рамки данного руководства.
+Введите свой пароль PKI в `/etc/step-ca/password.txt`, чтобы его можно было прочитать при запуске сервера. Обратите внимание, что вам придется редактировать эти файлы от имени root, поэтому убедитесь, что вы указали sudo vi или sudo nano для редактирования этих файлов. В идеале этот ключ должен храниться в TPM2, YubiKey или другой защищенной системе. Однако это выходит за рамки данного руководства.
 
-Теперь отредактируйте файл _/etc/step-ca/config/defaults.json_ и _/etc/step-ca/config/ca.json_, чтобы отразить новый путь. В моем случае мне пришлось изменить различные ключи в конфигурации с _/home/ubuntu/.step_ на _/etc/step-ca_, что лучше всего работает с использованием функций поиска и замены в вашем редакторе.
+Теперь отредактируйте файл `/etc/step-ca/config/defaults.json` и `/etc/step-ca/config/ca.json`, чтобы отразить новый путь. В моем случае мне пришлось изменить различные ключи в конфигурации с `/home/ubuntu/.step` на `/etc/step-ca`, что лучше всего работает с использованием функций поиска и замены в вашем редакторе.
 
 Установите пользователя step владельцем каталога конфигурации вашего CA:
 
@@ -211,6 +211,78 @@ export STEPPATH=/etc/step-ca
 ```shell
 sudo step certificate fingerprint $(step path)/certs/root_ca.crt
 ```
+
+Устанавливаем docker
+```shell
+sudo apt install docker.io docker-compose-v2 
+```
+
+Добавляем текущего юзера в группу docker
+```shell
+sudo usermod -aG docker $USER
+```
+
+Создаем директорию /etc/docker-compose
+
+```shell
+sudo mkdir -p /etc/docker-compose
+sudo chown -R ubuntu:ubuntu /etc/docker-compose
+```
+
+Запускаем FreeIPA для генерации CSR в /etc/docker-compose/docker-compose.yaml
+```yaml
+version: "3.8"
+
+services:
+  freeipa:
+    image: freeipa/freeipa-server:fedora-39-4.11.1
+    container_name: freeipa
+    restart: unless-stopped
+    hostname: freeipa.mydomain.int
+    ports:
+      - 123:123/udp
+      - 389:389
+      - 8443:443
+      - 464:464
+      - 464:464/udp
+      - 636:636
+      - 80:80
+      - 88:88
+      - 88:88/udp
+    tty: true
+    stdin_open: true
+    environment:
+      IPA_SERVER_HOSTNAME: freeipa.mydomain.int
+      TZ: "Europe/Moscow"
+    command:
+      - --no-ntp
+      - --no-host-dns
+      - --admin-password=youpassword
+      - --dirsrv-pin=youpassword
+      - --ds-password=youpassword
+      - --external-ca
+      - --http-pin=youpassword
+      - --realm=freeipa.mydomain.int
+      - --unattended
+    cap_add:
+      - SYS_TIME
+      - NET_ADMIN
+    volumes:
+      - /etc/docker-compose/ca:/ca
+      - /etc/docker-compose/freeipa-certificate:/freeipa-certificate
+      - /etc/docker-compose/freeipa-data:/data
+      - /etc/localtime:/etc/localtime:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv6.conf.lo.disable_ipv6=0
+    security_opt:
+      - "seccomp:unconfined"
+    tmpfs:
+    - /run
+    - /tmp
+```
+
 
 Подпишем зашифрованный запрос на выпуск сертификата (csr) FreeIPA корневым сертификатом CA, так как в FreeIPA csr указано поле `CA:True` и только корневой сертификат может его подписать:
 ```shell
