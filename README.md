@@ -298,8 +298,13 @@ services:
     - /tmp
 ```
 
+Запустим FreeIPA и посмотрим вывод
+```shell
+docker compose up
+```
+
 ## CSR FreeIPA
-CSR FreeIPA берем по пути /etc/docker-compose/freeipa-data/ipa.csr
+CSR FreeIPA сохранится по пути /etc/docker-compose/freeipa-data/ipa.csr
 
 Просмотр CSR
 ```shell
