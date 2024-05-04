@@ -276,7 +276,7 @@ services:
       - --ds-password=youpassword
       - --external-ca
       - --http-pin=youpassword
-      - --realm=freeipa.mydomain.int
+      - --realm=FREEIPA.MYDOMAIN.INT
       - --unattended
     cap_add:
       - SYS_TIME
