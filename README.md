@@ -244,7 +244,8 @@ sudo apt install docker.io docker-compose-v2 mc
 sudo usermod -aG docker $USER
 ```
 
-Создаем директорию /etc/docker-compose
+Создаем директорию и меняем ее владельца /etc/docker-compose
+`ubuntu` - текущий пользователь на виртуальной машине.
 
 ```shell
 sudo mkdir -p /etc/docker-compose
