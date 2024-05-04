@@ -283,13 +283,33 @@ services:
     - /tmp
 ```
 
+## CSR FreeIPA
+CSR FreeIPA берем по пути /etc/docker-compose/freeipa-data/ipa.csr
+
+Просмотр CSR
+```shell
+openssl req -text -noout -verify -in /etc/docker-compose/freeipa-data/ipa.csr
+```
+
+Прописываем `ca.mydomain.int` либо в DNS либо в /etc/hosts
+
+Генерируем FreeIPA сертификат (ipa.crt). Потребуем пароль из файла /etc/step-ca/password.txt
+```shell
+sudo step ca sign --ca-url https://ca.mydomain.int  --root /etc/step-ca/certs/root_ca.crt  /etc/docker-compose/freeipa-data/ipa.csr /etc/docker-compose/freeipa-data/ipa.crt
+```
+
+```shell
+sudo step certificate sign --profile intermediate-ca /etc/docker-compose/freeipa-data/ipa.csr /etc/step-ca/certs/root_ca.crt /etc/step-ca/secrets/root_ca_key > /etc/docker-compose/freeipa-data/ipa.crt
+```
+
+Просмотр CRT
+```shell
+openssl x509 -noout -text -in /etc/docker-compose/freeipa-data/ipa.crt
+```
 
 Подпишем зашифрованный запрос на выпуск сертификата (csr) FreeIPA корневым сертификатом CA, так как в FreeIPA csr указано поле `CA:True` и только корневой сертификат может его подписать:
 ```shell
-step certificate sign --profile intermediate-ca \
-  --ca /etc/step-ca/certs/root_ca.crt \
-  --ca-key /etc/step-ca/secrets/root_ca_key \
-  ipa.csr ipa.crt
+step ca sign --profile intermediate-ca /etc/docker-compose/freeipa-data/ipa.csr /etc/docker-compose/freeipa-data/ipa.crt
 ```
 
 Вывод
