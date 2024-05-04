@@ -303,5 +303,69 @@ sudo step certificate sign --profile intermediate-ca /etc/docker-compose/freeipa
 openssl x509 -noout -text -in /etc/docker-compose/freeipa-data/ipa.crt
 ```
 
+Копируем root CA  сертификат в FreeIPA:
+```shell
+sudo cp /etc/step-ca/certs/root_ca.crt /etc/docker-compose/ca/root_ca.crt
+```
+
+Обновляем /etc/docker-compose/docker-compose.yaml
+```yaml
+version: "3.8"
+
+services:
+  freeipa:
+    image: freeipa/freeipa-server:fedora-39-4.11.1
+    container_name: freeipa
+    restart: unless-stopped
+    hostname: freeipa.mydomain.int
+    ports:
+      - 123:123/udp
+      - 389:389
+      - 8443:443
+      - 464:464
+      - 464:464/udp
+      - 636:636
+      - 80:80
+      - 88:88
+      - 88:88/udp
+    tty: true
+    stdin_open: true
+    environment:
+      IPA_SERVER_HOSTNAME: freeipa.mydomain.int
+      TZ: "Europe/Moscow"
+    command:
+      - --no-ntp
+      - --no-host-dns
+      - --admin-password=youpassword
+      - --dirsrv-pin=youpassword
+      - --ds-password=youpassword
+      - --external-cert-file=/freeipa-certificate/ipa.crt
+      - --external-cert-file=/ca/root_ca.crt
+      - --http-pin=youpassword
+      - --realm=FREEIPA.MYDOMAIN.INT
+      - --unattended
+      - -v
+    cap_add:
+      - SYS_TIME
+      - NET_ADMIN
+    volumes:
+      - /etc/docker-compose/ca:/ca
+      - /etc/docker-compose/freeipa-certificate:/freeipa-certificate
+      - /etc/docker-compose/freeipa-data:/data
+      - /etc/localtime:/etc/localtime:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv6.conf.lo.disable_ipv6=0
+    security_opt:
+      - "seccomp:unconfined"
+    tmpfs:
+    - /run
+    - /tmp
+```
+
+Запускаем FreeIPA:
+
+
 Вывод
 В этой статье я рассказал о том, как быстро создать свой собственный центр сертификации. Этот пример удобен для демонстрации и тестирования; однако для производственного использования и в более крупных средах вам следует обязательно ознакомиться с обширной документацией step-ca и убедиться, что закрытые корневые ключи, операционная система сервера CA, программное обеспечение и любые пароли, связанные с вашим PKI, защищены надлежащим образом. Надлежащим образом реализованы такие меры предосторожности, как шифрование диска, многофакторная аутентификация, безопасная загрузка и аттестация оборудования.
