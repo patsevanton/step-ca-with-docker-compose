@@ -239,7 +239,7 @@ sudo mkdir -p /etc/docker-compose
 sudo chown -R ubuntu:ubuntu /etc/docker-compose
 ```
 
-Запускаем FreeIPA для генерации CSR в /etc/docker-compose/docker-compose.yaml
+Запускаем FreeIPA для генерации CSR c параметром --external-ca
 ```shell
 sudo nano /etc/docker-compose/docker-compose.yaml
 ```
