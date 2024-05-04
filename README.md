@@ -227,7 +227,7 @@ sudo step certificate fingerprint $(step path)/certs/root_ca.crt
 sudo apt install docker.io docker-compose-v2 mc
 ```
 
-Добавляем текущего юзера в группу docker
+Добавляем текущего юзера в группу docker и перезайдем на сервер
 ```shell
 sudo usermod -aG docker $USER
 ```
