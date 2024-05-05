@@ -1,12 +1,6 @@
 - name: Install FreeIPA
   hosts: freeipa
   become: true
-#  vars:
-#    - key_size: 4096
-#    - key_type: RSA # Others include DSA, ECC, Ed25519, Ed448, X25519, X448
-#    - country_name: RU
-#    - email_address: admin@apatsev.org.ru
-#    - organization_name: APATSEV
 
   pre_tasks:
     - name: Update apt cache.
@@ -60,6 +54,17 @@
     - name: Pause for 5 minutes to start services docker-compose
       ansible.builtin.pause:
         minutes: 10
+
+    - name: copy ipa.csr from freeipa to local
+      fetch:
+        src: /etc/docker-compose/freeipa-data/ipa.csr
+        dest: /tmp/ipa.csr
+
+    - name: copy ipa.csr from local to smallstep
+      copy:
+        src: /tmp/ipa.csr
+        dest: /etc/step-ca/certs/ipa.csr
+      delegate_to: smallstep
 
 #    - name: Generate an OpenSSL certificate signed with your own CA certificate
 #      community.crypto.x509_certificate:
