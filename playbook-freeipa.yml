@@ -51,16 +51,16 @@
         mode: '0644'
       register: docker_compose
 
-#    - name: Create and start services
-#      community.docker.docker_compose_v2:
-#        project_src: /etc/docker-compose
-#      register: docker_compose_output
-#      ignore_errors: true
-#
-#    - name: Pause for 5 minutes to start services docker-compose
-#      ansible.builtin.pause:
-#        minutes: 5
-#
+    - name: Create and start services
+      community.docker.docker_compose_v2:
+        project_src: /etc/docker-compose
+      register: docker_compose_output
+      ignore_errors: true
+
+    - name: Pause for 5 minutes to start services docker-compose
+      ansible.builtin.pause:
+        minutes: 10
+
 #    - name: Generate an OpenSSL certificate signed with your own CA certificate
 #      community.crypto.x509_certificate:
 #        path: /etc/docker-compose/freeipa-certificate/freeipa.crt
@@ -68,7 +68,7 @@
 #        ownca_path: /etc/docker-compose/ca/ca.crt
 #        ownca_privatekey_path: /etc/docker-compose/ca/ca.key
 #        provider: ownca
-#
+
 #    - name: Remove external-ca from /etc/hosts
 #      lineinfile:
 #        path: /etc/docker-compose/docker-compose.yaml
