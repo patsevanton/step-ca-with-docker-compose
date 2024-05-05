@@ -1,5 +1,5 @@
 - name: Install FreeIPA
-  hosts: freeipa-smallstep
+  hosts: smallstep
   become: true
   vars:
     - key_size: 4096

@@ -1,9 +1,13 @@
 all:
   children:
-    freeipa-smallstep:
+    smallstep:
       hosts:
-        "freeipa-smallstep":
-          ansible_host: "${public_ip}"
+        "smallstep":
+          ansible_host: "${smallstep_public_ip}"
+    freeipa:
+      hosts:
+        "freeipa":
+          ansible_host: "${freeipa_public_ip}"
   vars:
     ansible_user:  ${ssh_user}
     ansible_ssh_private_key_file: ~/.ssh/id_rsa
