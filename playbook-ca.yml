@@ -7,7 +7,8 @@
       include_role:
         name: maxhoesel.smallstep.step_ca
       vars:
-        step_ca_name: Foobar Internal CA
+        step_ca_dns: "ca.mydomain.int"
+        step_ca_name: "MyPrivateCA"
         step_ca_root_password: "incredibly secret password"
         step_ca_intermediate_password: "very secret password"
 
