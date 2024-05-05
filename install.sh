@@ -11,7 +11,7 @@ ansible-galaxy collection install community.docker
 ansible-galaxy collection install community.general
 ansible-galaxy collection install git+https://github.com/maxhoesel-ansible/ansible-collection-smallstep
 #ansible-playbook -i inventory.yml playbook-ca.yml
-##ansible-playbook -i inventory.yml playbook-smallstep.yml
+ansible-playbook -i inventory.yml playbook-smallstep.yml
 #ansible-playbook -i inventory.yml playbook.yml
 end_time=$(date +%s)
 date2=$(date +"%s")
