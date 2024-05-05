@@ -1,12 +1,12 @@
 - name: Install FreeIPA
   hosts: freeipa
   become: true
-  vars:
-    - key_size: 4096
-    - key_type: RSA # Others include DSA, ECC, Ed25519, Ed448, X25519, X448
-    - country_name: RU
-    - email_address: admin@apatsev.org.ru
-    - organization_name: APATSEV
+#  vars:
+#    - key_size: 4096
+#    - key_type: RSA # Others include DSA, ECC, Ed25519, Ed448, X25519, X448
+#    - country_name: RU
+#    - email_address: admin@apatsev.org.ru
+#    - organization_name: APATSEV
 
   pre_tasks:
     - name: Update apt cache.

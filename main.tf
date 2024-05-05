@@ -35,8 +35,8 @@ resource "local_file" "inventory_yml" {
       smallstep_public_ip    = module.smallstep.external_ip[0]
       freeipa_public_ip      = module.freeipa.external_ip[0]
       freeipa_password       = var.freeipa_password
-      freeipa_fqdn           = var.freeipa_fqdn
-      freeipa_domain         = var.freeipa_domain
+      freeipa_fqdn           = "freeipa.mydomain.int"
+      freeipa_domain         = "MYDOMAIN.INT"
       ssh_user               = var.ssh_user
     }
   )
