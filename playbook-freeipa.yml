@@ -45,6 +45,10 @@
         mode: '0644'
       register: docker_compose
 
+    - name: Pull a Docker compose project
+      community.docker.docker_compose_v2_pull:
+        project_src: /etc/docker-compose
+
     - name: Create and start services
       community.docker.docker_compose_v2:
         project_src: /etc/docker-compose
@@ -59,8 +63,10 @@
       fetch:
         src: /etc/docker-compose/freeipa-data/ipa.csr
         dest: /tmp/ipa.csr
+        flat: yes
 
     - name: copy ipa.csr from local to smallstep
+      tags: [ 'copy' ]
       copy:
         src: /tmp/ipa.csr
         dest: /etc/step-ca/certs/ipa.csr
