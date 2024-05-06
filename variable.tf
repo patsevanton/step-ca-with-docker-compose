@@ -1,7 +1,7 @@
-variable "yc_token" {
-  type        = string
-  description = "Yandex Cloud API key"
-}
+# variable "yc_token" {
+#   type        = string
+#   description = "Yandex Cloud API key"
+# }
 
 variable "yc_cloud_id" {
   type        = string
