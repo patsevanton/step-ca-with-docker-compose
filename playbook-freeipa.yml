@@ -66,19 +66,15 @@
         flat: yes
 
     - name: copy ipa.csr from local to smallstep
-      tags: [ 'copy' ]
       copy:
         src: /tmp/ipa.csr
         dest: /etc/step-ca/certs/ipa.csr
       delegate_to: smallstep
 
-#    - name: Generate an OpenSSL certificate signed with your own CA certificate
-#      community.crypto.x509_certificate:
-#        path: /etc/docker-compose/freeipa-certificate/freeipa.crt
-#        csr_path: /etc/docker-compose/freeipa-data/ipa.csr
-#        ownca_path: /etc/docker-compose/ca/ca.crt
-#        ownca_privatekey_path: /etc/docker-compose/ca/ca.key
-#        provider: ownca
+#    - name: Generate an OpenSSL certificate signed with your Step-CA
+#      ansible.builtin.shell:
+#        cmd: sudo step certificate sign --profile intermediate-ca ipa.csr root_ca.crt /etc/step-ca/secrets/root_ca_key | sudo tee -a ipa.crt
+#        chdir: /etc/step-ca/certs
 
 #    - name: Remove external-ca from /etc/hosts
 #      lineinfile:
