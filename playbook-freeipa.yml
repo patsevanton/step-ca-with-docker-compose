@@ -73,9 +73,19 @@
 
     - name: Generate an OpenSSL certificate signed with your Step-CA
       ansible.builtin.shell:
-        cmd: sudo step certificate sign --profile intermediate-ca ipa.csr root_ca.crt /etc/step-ca/secrets/root_ca_key | sudo tee -a ipa.crt
+        cmd: sudo step-cli certificate sign --profile intermediate-ca ipa.csr root_ca.crt /etc/step-ca/secrets/root_ca_key | sudo tee -a ipa.crt
         chdir: /etc/step-ca/certs
+      register: generate_ipa_crt
       delegate_to: smallstep
+
+    - debug: msg="{{ generate_ipa_crt.stdout }}"
+    - debug: msg="{{ generate_ipa_crt.stderr }}"
+
+    - name: Change ipa.crt file permission
+      file:
+        path: /etc/step-ca/certs/ipa.crt
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
 
     - name: copy ipa.crt from smallstep to local
       fetch:
@@ -83,18 +93,17 @@
         dest: /tmp/ipa.crt
         flat: yes
       delegate_to: smallstep
-      tags: fetch
 
-    - name: copy ipa.crt from local to freeipa
-      copy:
-        src: /tmp/ipa.crt
-        dest: /etc/step-ca/certs/ipa.crt
-
-    - name: Remove external-ca from /etc/hosts
-      lineinfile:
-        path: /etc/docker-compose/docker-compose.yaml
-        state: absent
-        regexp: 'external-ca'
+#    - name: copy ipa.crt from local to freeipa
+#      copy:
+#        src: /tmp/ipa.crt
+#        dest: /etc/step-ca/certs/ipa.crt
+#
+#    - name: Remove external-ca from /etc/hosts
+#      lineinfile:
+#        path: /etc/docker-compose/docker-compose.yaml
+#        state: absent
+#        regexp: 'external-ca'
 
 #    - name: 'Add external-cert-file=/freeipa-certificate/freeipa.crt to docker-compose.yaml'
 #      lineinfile:
