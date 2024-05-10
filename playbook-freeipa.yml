@@ -71,37 +71,39 @@
         dest: /etc/step-ca/certs/ipa.csr
       delegate_to: smallstep
 
-#    - name: Generate an OpenSSL certificate signed with your Step-CA
-#      ansible.builtin.shell:
-#        cmd: sudo step certificate sign --profile intermediate-ca ipa.csr root_ca.crt /etc/step-ca/secrets/root_ca_key | sudo tee -a ipa.crt
-#        chdir: /etc/step-ca/certs
+    - name: Generate an OpenSSL certificate signed with your Step-CA
+      ansible.builtin.shell:
+        cmd: sudo step certificate sign --profile intermediate-ca ipa.csr root_ca.crt /etc/step-ca/secrets/root_ca_key | sudo tee -a ipa.crt
+        chdir: /etc/step-ca/certs
+      delegate_to: smallstep
 
-#    - name: Remove external-ca from /etc/hosts
-#      lineinfile:
-#        path: /etc/docker-compose/docker-compose.yaml
-#        state: absent
-#        regexp: 'external-ca'
-#
+    - name: copy ipa.crt from smallstep to local
+      fetch:
+        src: /etc/step-ca/certs/ipa.crt
+        dest: /tmp/ipa.crt
+        flat: yes
+      delegate_to: smallstep
+      tags: fetch
+
+    - name: copy ipa.crt from local to freeipa
+      copy:
+        src: /tmp/ipa.crt
+        dest: /etc/step-ca/certs/ipa.crt
+
+    - name: Remove external-ca from /etc/hosts
+      lineinfile:
+        path: /etc/docker-compose/docker-compose.yaml
+        state: absent
+        regexp: 'external-ca'
+
 #    - name: 'Add external-cert-file=/freeipa-certificate/freeipa.crt to docker-compose.yaml'
 #      lineinfile:
 #        path: '/etc/docker-compose/docker-compose.yaml'
-#        line: '      - --external-cert-file=/freeipa-certificate/freeipa.crt'
-#        insertbefore: "unattended"
-#
-#    - name: 'Add external-cert-file=/ca/chain.crt to docker-compose.yaml'
-#      lineinfile:
-#        path: '/etc/docker-compose/docker-compose.yaml'
-#        line: '      - --external-cert-file=/ca/chain.crt'
+#        line: '      - --external-cert-file=/freeipa-certificate/ipa.crt'
 #        insertbefore: "unattended"
 #
 #    - name: 'Add external-cert-file=/ca/ca.crt to docker-compose.yaml'
 #      lineinfile:
 #        path: '/etc/docker-compose/docker-compose.yaml'
 #        line: '      - --external-cert-file=/ca/ca.crt'
-#        insertbefore: "unattended"
-#
-#    - name: 'Add external-cert-file=/ca/lets-encrypt-r3.pem to docker-compose.yaml'
-#      lineinfile:
-#        path: '/etc/docker-compose/docker-compose.yaml'
-#        line: '      - --external-cert-file=/ca/lets-encrypt-r3.pem'
 #        insertbefore: "unattended"
