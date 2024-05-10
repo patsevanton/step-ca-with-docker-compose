@@ -55,7 +55,7 @@
       register: docker_compose_output
       ignore_errors: true
 
-    - name: Pause for 5 minutes to start services docker-compose
+    - name: Pause for 10 minutes to start services docker-compose
       ansible.builtin.pause:
         minutes: 10
 
