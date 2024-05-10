@@ -73,14 +73,19 @@
 
     # https://github.com/smallstep/cli/issues/674
     - name: Generate an OpenSSL certificate signed with your Step-CA
+      become: true
       ansible.builtin.shell:
-        cmd: sudo step-cli certificate sign --profile intermediate-ca ipa.csr root_ca.crt /etc/step-ca/secrets/root_ca_key | sudo tee -a ipa.crt
+        cmd: step-cli certificate sign --profile intermediate-ca ipa.csr root_ca.crt /etc/step-ca/secrets/root_ca_key | sudo tee -a ipa.crt
         chdir: /etc/step-ca/certs
       register: generate_ipa_crt
       delegate_to: smallstep
+      tags: generate_ipa_crt
+      vars:
+        ansible_ssh_pipelining: no
 
-    - debug: msg="{{ generate_ipa_crt.stdout }}"
-    - debug: msg="{{ generate_ipa_crt.stderr }}"
+    - name: stderr
+      debug: msg="{{ generate_ipa_crt.stderr }}"
+      tags: generate_ipa_crt
 
     - name: Change ipa.crt file permission
       file:
