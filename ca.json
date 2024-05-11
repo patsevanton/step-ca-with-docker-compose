@@ -1,0 +1,33 @@
+{
+  "root": "/etc/step-ca/certs/root_ca.crt",
+  "federatedRoots": null,
+  "crt": "/etc/step-ca/certs/intermediate_ca.crt",
+  "key": "/etc/step-ca/secrets/intermediate_ca_key",
+  "address": ":443",
+  "insecureAddress": "",
+  "dnsNames": [
+    "ca.mydomain.int"
+  ],
+  "logger": {
+    "format": "text"
+  },
+  "db": {
+    "type": "badgerv2",
+    "dataSource": "/etc/step-ca/db",
+    "badgerFileLoadingMode": ""
+  },
+  "authority": {
+    "template": {},
+    "backdate": "1m0s"
+  },
+  "tls": {
+    "cipherSuites": [
+      "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+      "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+    ],
+    "minVersion": 1.2,
+    "maxVersion": 1.3,
+    "renegotiation": false
+  },
+  "commonName": "Step Online CA"
+}

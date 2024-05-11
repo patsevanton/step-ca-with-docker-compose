@@ -1,0 +1,6 @@
+{
+  "ca-url": "https://ca.mydomain.int",
+  "ca-config": "/etc/step-ca/config/ca.json",
+  "fingerprint": "5f8509909876e3009ab5c51ed785d41c0921be737d7f36c74c04b6af95310cb8",
+  "root": "/etc/step-ca/certs/root_ca.crt"
+}
