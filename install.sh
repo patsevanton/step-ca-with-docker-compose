@@ -10,8 +10,9 @@ ansible-galaxy install geerlingguy.docker
 ansible-galaxy collection install community.docker
 ansible-galaxy collection install community.general
 ansible-galaxy collection install git+https://github.com/maxhoesel-ansible/ansible-collection-smallstep
-#ansible-playbook -i inventory.yml playbook-ca.yml
+ansible-playbook -i inventory.yml playbook-ca.yml
 ansible-playbook -i inventory.yml playbook-gen-ipa-csr.yml
+ansible-playbook -i inventory.yml playbook-gen-ipa-crt.yml
 end_time=$(date +%s)
 date2=$(date +"%s")
 echo "###############"

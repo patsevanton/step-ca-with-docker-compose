@@ -35,25 +35,28 @@
       register: generate_ipa_crt
       delegate_to: smallstep
       tags: generate_ipa_crt
-      vars:
-        ansible_ssh_pipelining: no
+#      vars:
+#        ansible_ssh_pipelining: no
+      environment:
+        ANSIBLE_SSH_PIPELINING: False
+        STEPPATH: /etc/step-ca
 
     - name: stderr
       debug: msg="{{ generate_ipa_crt.stderr }}"
       tags: generate_ipa_crt
 
-    - name: Change ipa.crt file permission
-      file:
-        path: /etc/step-ca/certs/ipa.crt
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
-
-    - name: copy ipa.crt from smallstep to local
-      fetch:
-        src: /etc/step-ca/certs/ipa.crt
-        dest: /tmp/ipa.crt
-        flat: yes
-      delegate_to: smallstep
+#    - name: Change ipa.crt file permission
+#      file:
+#        path: /etc/step-ca/certs/ipa.crt
+#        owner: "{{ ansible_user }}"
+#        group: "{{ ansible_user }}"
+#
+#    - name: copy ipa.crt from smallstep to local
+#      fetch:
+#        src: /etc/step-ca/certs/ipa.crt
+#        dest: /tmp/ipa.crt
+#        flat: yes
+#      delegate_to: smallstep
 
 #    - name: copy ipa.crt from local to freeipa
 #      copy:
