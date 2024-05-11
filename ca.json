@@ -17,8 +17,22 @@
     "badgerFileLoadingMode": ""
   },
   "authority": {
-    "template": {},
-    "backdate": "1m0s"
+    "provisioners": [
+      {
+        "type": "JWK",
+        "name": "pki@mydomain.int",
+        "key": {
+          "use": "sig",
+          "kty": "EC",
+          "kid": "a0SgS14ebFL4fnAx4Q29J3VzzjqLnEVndsYyPnsU_q4",
+          "crv": "P-256",
+          "alg": "ES256",
+          "x": "WMwuEgh-QpjOw_31FPUNfrYoCfIl7_Pzp_rVeu02EmE",
+          "y": "l5fTfNgbO_4e6dHT3vXszVXJTugC2V1jvQncTka0vzo"
+        },
+        "encryptedKey": "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJjdHkiOiJqd2sranNvbiIsImVuYyI6IkEyNTZHQ00iLCJwMmMiOjYwMDAwMCwicDJzIjoidnlPWXJ3b2d1Z0hNcy1YOWtIZ3dMQSJ9.F2Wt2mRJNKX6ZLyYZr76UA5x9f7MGeOSgjQixwKIvVaaao7Y4LgwKA.j_AOkjxcR3PB7xIo.Dl9WehgY2ruQfryFGPu0HSW7dTRC5ln19Rm-UB_I6_0EHslWjU1E9B1Ox-HExSGSlU5T4JmZn-Fcyg2IfYU8SYwrx8aHdipv95liIdknBWbqO8PGkDhP0kJ9k8UbbMm0n5b04TIek1EWtiQDpcigu54nCB-vKmybTeCY3tq9UWn6w3T-lIeOgbnUHwtJD1h-9i6QLsZioCHY-8p09hErf8qTNiCTwBHGdol14sIhZ8K78FWb1yIZalkQhyMOP84oteBlr6ag7R1FlVA9tH6oXYmgcdwY_zchxjvkyRZOAzOdBlNbCJJVbhl7i0eGgl0sAqaC4Wg8QNuK23o1sIs.8_04HGCxHJ-2dVEbkdM_Rw"
+      }
+    ]
   },
   "tls": {
     "cipherSuites": [
@@ -28,6 +42,5 @@
     "minVersion": 1.2,
     "maxVersion": 1.3,
     "renegotiation": false
-  },
-  "commonName": "Step Online CA"
+  }
 }
