@@ -11,7 +11,12 @@
         step_ca_name: "MyPrivateCA"
         step_ca_root_password: "incredibly secret password"
         step_ca_intermediate_password: "very secret password"
-
+    - name: Add an JWK provisioner to the CA
+      maxhoesel.smallstep.step_ca_provisioner:
+        name: pki@mydomain.int
+        type: JWK
+      become_user: step-ca
+      notify: reload step-ca
     # The CA root cert fingerprint is used by clients to verify the authenticity of your CA.
     # You can save the output of this task and then pass it on to any client that you want to trust the CA.
     - name: Get root CA fingerprint
@@ -20,3 +25,8 @@
     - name: Show root CA fingerprint
       debug:
         msg: "Fingerprint of root cert: {{ root_ca_fp.stdout }}"
+  handlers:
+    - name: reload step-ca
+      systemd:
+        name: step-ca
+        state: reloaded
