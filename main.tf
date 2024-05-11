@@ -1,16 +1,17 @@
 module "smallstep" {
-  source        = "git::https://github.com/patsevanton/terraform-yandex-compute.git?ref=v1.23.0"
+  source        = "git::https://github.com/terraform-yacloud-modules/terraform-yandex-instance.git?ref=main"
   image_family  = var.family_images_linux
   subnet_id     = data.yandex_vpc_subnet.default-ru-central1-b.id
   zone          = data.yandex_vpc_subnet.default-ru-central1-b.zone
   name          = "smallstep"
   hostname      = "smallstep"
-  memory        = "2"
-  is_nat        = true
+  memory        = "4"
+  enable_nat    = true
   preemptible   = true
   core_fraction = 100
-  user          = var.ssh_user
-  nat_ip_address = var.nat_ip_address
+  ssh_user      = var.ssh_user
+  ssh_pubkey    = "~/.ssh/id_rsa.pub"
+  generate_ssh_key = false
 }
 
 module "freeipa" {
@@ -32,7 +33,7 @@ resource "local_file" "inventory_yml" {
   content = templatefile("inventory_yml.tpl",
     {
       ssh_user               = var.ssh_user
-      smallstep_public_ip    = module.smallstep.external_ip[0]
+      smallstep_public_ip    = module.smallstep.instance_public_ip
       freeipa_public_ip      = module.freeipa.external_ip[0]
       freeipa_password       = var.freeipa_password
       freeipa_fqdn           = "freeipa.mydomain.int"
@@ -46,7 +47,7 @@ resource "local_file" "inventory_yml" {
 
 output "smallstep_public_ip" {
   description = "Public IP address smallstep"
-  value       = module.smallstep.external_ip[0]
+  value       = module.smallstep.instance_public_ip
 }
 
 output "freeipa_public_ip" {
