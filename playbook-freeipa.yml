@@ -71,11 +71,28 @@
         dest: /etc/step-ca/certs/ipa.csr
       delegate_to: smallstep
 
+    - name: change shell for step-ca
+      ansible.builtin.user:
+        name: "step-ca"
+        password: "*"
+        home: "/etc/step-ca"
+        shell: /bin/bash
+        system: yes
+      delegate_to: smallstep
+
+    - name: Install acl
+      ansible.builtin.apt:
+        name: acl
+        state: present
+      delegate_to: smallstep
+
     # https://github.com/smallstep/cli/issues/674
     - name: Generate an OpenSSL certificate signed with your Step-CA
       become: true
+      become_user: step-ca
       ansible.builtin.shell:
         cmd: step-cli certificate sign --profile intermediate-ca ipa.csr root_ca.crt /etc/step-ca/secrets/root_ca_key --password-file /etc/step-ca/.password.txt | sudo tee -a ipa.crt
+#        cmd: step-cli certificate sign --profile intermediate-ca --token $(step-cli ca token ca.mydomain.int --ca-url https://ca.mydomain.int --root root_ca.crt --password-file /etc/step-ca/.password.txt) ipa.csr ipa.crt | sudo tee -a ipa.crt
         chdir: /etc/step-ca/certs
       register: generate_ipa_crt
       delegate_to: smallstep
