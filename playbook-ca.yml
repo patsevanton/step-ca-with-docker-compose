@@ -15,6 +15,7 @@
       maxhoesel.smallstep.step_ca_provisioner:
         name: pki@mydomain.int
         type: JWK
+        jwk_create: yes
       become_user: step-ca
       notify: reload step-ca
     # The CA root cert fingerprint is used by clients to verify the authenticity of your CA.
