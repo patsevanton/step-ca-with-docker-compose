@@ -1,12 +1,6 @@
 - name: Install FreeIPA
-  hosts: smallstep
+  hosts: freeipa
   become: true
-  vars:
-    - key_size: 4096
-    - key_type: RSA # Others include DSA, ECC, Ed25519, Ed448, X25519, X448
-    - country_name: RU
-    - email_address: admin@apatsev.org.ru
-    - organization_name: APATSEV
 
   pre_tasks:
     - name: Update apt cache.
@@ -51,19 +45,22 @@
         mode: '0644'
       register: docker_compose
 
-#    - name: Copy freeipa.service
-#      ansible.builtin.copy:
-#        src: freeipa.service
-#        dest: /etc/systemd/system/freeipa.service
-#        owner: "{{ ssh_user }}"
-#        group: "{{ ssh_user }}"
-#        mode: '0644'
-#      register: freeipa_service
-#
-#    - name: Restart service freeipa
-#      ansible.builtin.systemd:
-#        state: restarted
-#        daemon_reload: yes
-#        name: freeipa
-#      when: docker_compose.changed or freeipa_service
+    - name: Pull a Docker compose project
+      community.docker.docker_compose_v2_pull:
+        project_src: /etc/docker-compose
 
+    - name: Create and start services
+      community.docker.docker_compose_v2:
+        project_src: /etc/docker-compose
+      register: docker_compose_output
+      ignore_errors: true
+
+    - name: Pause for 10 minutes to start services docker-compose
+      ansible.builtin.pause:
+        minutes: 10
+
+    - name: copy ipa.csr from freeipa to local
+      fetch:
+        src: /etc/docker-compose/freeipa-data/ipa.csr
+        dest: /tmp/ipa.csr
+        flat: yes
